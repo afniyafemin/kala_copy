@@ -1,0 +1,27 @@
+class ImgConstant{
+  static const bgimage="assets/images/bgimage.jpg";
+  static const add1="assets/images/add1.jpg";
+  static const add2="assets/images/add2.jpg";
+  static const add3="assets/images/add3.jpg";
+  static const dance_category1="assets/images/dance_category1.jpg";
+  static const dance_category2="assets/images/dance_category2.jpg";
+  static const dance_category3="assets/images/dance_category3.jpg";
+  static const dancing="assets/images/dancing.png";
+  static const event1="assets/images/event1.jpg";
+  static const event2="assets/images/event2.jpg";
+  static const fav1="assets/images/fav1.jpg";
+  static const fav2="assets/images/fav2.jpg";
+  static const fav3="assets/images/fav3.jpg";
+  static const fav4="assets/images/fav4.jpg";
+  static const home="assets/images/home.jpg";
+  static const instrumental_music="assets/images/instrumental_music.png";
+  static const malabar="assets/images/malabar.png";
+  static const martial="assets/images/martial.png";
+  static const search_dance1="assets/images/search_dance1.jpg";
+  static const search_dance2="assets/images/search_dance2.jpg";
+  static const trending1="assets/images/trending1.jpg";
+  static const trending2="assets/images/trending2.jpg";
+  static const western="assets/images/western.png";
+  static const star="assets/images/star.jpg";
+  static const google="assets/images/google_logo.png";
+}
