@@ -21,6 +21,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
   final cityController = TextEditingController();
   final descriptionController = TextEditingController();
   File? _imgFile;
+  String? _uploadedImageUrl;
 
   @override
   void initState() {
@@ -39,6 +40,9 @@ class _EditProfileNewState extends State<EditProfileNew> {
         categoryController.text = data['category'] ?? '';
         cityController.text = data['city'] ?? '';
         descriptionController.text = data['description'] ?? '';
+        setState(() {
+          _uploadedImageUrl = data['profileImageUrl'];
+        });
       }
     }
   }
@@ -73,7 +77,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
 
   Future<void> _updateUserData(String? imageUrl) async {
     User? user = FirebaseAuth.instance.currentUser;
-    if (user != null && imageUrl != null) {
+    if (user != null) {
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
         'profileImageUrl': imageUrl,
         'username': nameController.text,
@@ -98,6 +102,9 @@ class _EditProfileNewState extends State<EditProfileNew> {
     try {
       String? imageUrl = await _uploadImageToFirebase(_imgFile);
       if (imageUrl != null) {
+        setState(() {
+          _uploadedImageUrl = imageUrl;
+        });
         await _updateUserData(imageUrl);
       }
     } catch (e) {
@@ -116,12 +123,14 @@ class _EditProfileNewState extends State<EditProfileNew> {
           CupertinoActionSheetAction(
             onPressed: () {
               _pickImage(ImageSource.gallery);
+              Navigator.pop(context);
             },
             child: Text("Choose From Gallery"),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               _pickImage(ImageSource.camera);
+              Navigator.pop(context);
             },
             child: Text("Use Camera"),
           ),
@@ -162,8 +171,9 @@ class _EditProfileNewState extends State<EditProfileNew> {
                     radius: width * 0.185,
                     backgroundImage: _imgFile != null
                         ? FileImage(_imgFile!)
-                        : AssetImage(ImgConstant.dance_category1)
-                    as ImageProvider,
+                        : (_uploadedImageUrl != null
+                        ? NetworkImage(_uploadedImageUrl!)
+                        : AssetImage(ImgConstant.dance_category1)) as ImageProvider,
                   ),
                 ),
                 Positioned(
@@ -233,7 +243,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _showImageSourceDialog,
+        onPressed: _handleUpload,
         backgroundColor: ClrConstant.primaryColor,
         child: Icon(Icons.cloud_upload),
       ),

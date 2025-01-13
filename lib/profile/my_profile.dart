@@ -45,37 +45,42 @@ class _MyProfileNewState extends State<MyProfileNew> {
   var pop = 0;
 
 
+  String? _profileImageUrl;
+  String _username = '';
+  String _category = '';
+  String _city = '';
+  String _description = '';
   int _followersCount = 0;
   int _followingCount = 0;
   double _avgRating = 0.0;
-  final ArtistRatingService _artistRatingService = ArtistRatingService(); // Create an instance of the service
 
   @override
   void initState() {
     super.initState();
-    _getUserData();
-    _getArtistRating();
+    _fetchUserProfile();
   }
 
-  Future<void> _getUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
+  Future<void> _fetchUserProfile() async {
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
       if (userDoc.exists) {
         setState(() {
-          _followersCount = (userDoc.data()?['followers'] as List<dynamic>?)?.length ?? 0;
-          _followingCount = (userDoc.data()?['following'] as List<dynamic>?)?.length ?? 0;
+          var data = userDoc.data() as Map<String, dynamic>;
+          _profileImageUrl = data['profileImageUrl'];
+          _username = data['username'] ?? '';
+          _category = data['category'] ?? '';
+          _city = data['city'] ?? '';
+          _description = data['description'] ?? '';
+          _followersCount = (data['followers'] as List<dynamic>?)?.length ?? 0;
+          _followingCount = (data['following'] as List<dynamic>?)?.length ?? 0;
         });
       }
     }
   }
 
-  Future<void> _getArtistRating() async {
-    double averageRating = await _artistRatingService.getArtistAverageRating();
-    setState(() {
-      _avgRating = averageRating;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +273,11 @@ class _MyProfileNewState extends State<MyProfileNew> {
                       children: [
                         CircleAvatar(
                           radius: width * 0.1,
-                          backgroundImage: AssetImage(ImgConstant.fav1),
+                          backgroundColor: ClrConstant.whiteColor,
+                          backgroundImage: _profileImageUrl != null
+                              ? NetworkImage(_profileImageUrl!)
+                              : AssetImage('assets/images/placeholder_user.png')
+                          as ImageProvider,
                         ),
                         FutureBuilder(
                           future: fetchUserData(),
