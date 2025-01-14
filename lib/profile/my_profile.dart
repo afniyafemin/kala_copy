@@ -253,11 +253,11 @@ class _MyProfileNewState extends State<MyProfileNew> {
       ),
       body: ListView(
         children: [
-          // SizedBox(),
-          Stack(children: [
-            Container(
-              height: height * 0.35,
-              decoration: BoxDecoration(
+          Stack(
+              children: [
+                Container(
+                  height: height * 0.35,
+                  decoration: BoxDecoration(
                   color: ClrConstant.primaryColor,
                   borderRadius: BorderRadius.only(
                     bottomRight: Radius.circular(width * 0.5),
@@ -276,7 +276,7 @@ class _MyProfileNewState extends State<MyProfileNew> {
                           backgroundColor: ClrConstant.whiteColor,
                           backgroundImage: _profileImageUrl != null
                               ? NetworkImage(_profileImageUrl!)
-                              : AssetImage('assets/images/placeholder_user.png')
+                              : AssetImage(ImgConstant.fav4)
                           as ImageProvider,
                         ),
                         FutureBuilder(

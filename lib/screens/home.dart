@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(8.0),
                       child: TextFormField(
                         onTap: () {
                           showSearch(
@@ -284,37 +284,32 @@ class _HomePageState extends State<HomePage> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       UserModel user = users[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Profile(user: user),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(width * 0.025),
-                          height: height * 0.35,
-                          width: width * 0.85,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(width * 0.03),
-                            color: ClrConstant.primaryColor.withOpacity(0.20),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                      return Container(
+                        padding: EdgeInsets.all(width * 0.025),
+                        height: height * 0.35,
+                        width: width * 0.85,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(width * 0.03),
+                          color: ClrConstant.primaryColor.withOpacity(0.20),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap : (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(user: user),));
+                              },
+                              child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    radius: width * 0.03,
-                                    backgroundColor: ClrConstant.primaryColor,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: width * 0.05,
-                                    ),
+                                    radius: width * 0.04,
+                                    backgroundColor: ClrConstant.whiteColor,
+                                    backgroundImage: user.profilePicUrl != null && user.profilePicUrl!.isNotEmpty
+                                        ? NetworkImage(user.profilePicUrl!) // Use profile image URL
+                                        : AssetImage(ImgConstant.fav2) as ImageProvider, // Fallback image
                                   ),
+
                                   SizedBox(width: width * 0.03),
                                   Text(
                                     user.username ?? 'Unknown user',
@@ -323,60 +318,60 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                height: height * 0.2,
-                                width: width * 0.8,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.circular(width * 0.03),
-                                  image: DecorationImage(
-                                    image: AssetImage(ImgConstant.event1),
-                                    fit: BoxFit.cover,
-                                  ),
+                            ),
+                            Container(
+                              height: height * 0.2,
+                              width: width * 0.8,
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    BorderRadius.circular(width * 0.03),
+                                image: DecorationImage(
+                                  image: AssetImage(ImgConstant.event1),
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '''${user.username} : The Name that belongs to one of \n The Youngest And Successful DJ's producers..''',
-                                      style: TextStyle(
-                                        fontSize: width * 0.03,
-                                        fontWeight: FontWeight.w600,
-                                        color: ClrConstant.blackColor
-                                            .withOpacity(0.25),
-                                      ),
+                            ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '''${user.username} : The Name that belongs to one of \n The Youngest And Successful DJ's producers..''',
+                                    style: TextStyle(
+                                      fontSize: width * 0.03,
+                                      fontWeight: FontWeight.w600,
+                                      color: ClrConstant.blackColor
+                                          .withOpacity(0.25),
                                     ),
                                   ),
-                                  FutureBuilder<bool>(
-                                    future: _isUserFavorited(user.uid!),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return CircularProgressIndicator();
-                                      }
-                                      bool isFavorited = snapshot.data ?? false;
-                                      return IconButton(
-                                        icon: Icon(
-                                          isFavorited
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: isFavorited
-                                              ? Colors.red
-                                              : ClrConstant.primaryColor,
-                                        ),
-                                        onPressed: () {
-                                          _toggleFavorite(user);
-                                        },
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                                FutureBuilder<bool>(
+                                  future: _isUserFavorited(user.uid!),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    }
+                                    bool isFavorited = snapshot.data ?? false;
+                                    return IconButton(
+                                      icon: Icon(
+                                        isFavorited
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: isFavorited
+                                            ? Colors.red
+                                            : ClrConstant.primaryColor,
+                                      ),
+                                      onPressed: () {
+                                        _toggleFavorite(user);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       );
                     },

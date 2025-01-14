@@ -240,7 +240,7 @@ class _ProfileState extends State<Profile> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           content: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            padding: EdgeInsets.symmetric(vertical: 12.0),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -349,7 +349,7 @@ class _ProfileState extends State<Profile> {
                           _showReportDialog();
                         },
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
                             children: [
                               Icon(Icons.report),

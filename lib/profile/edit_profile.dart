@@ -65,14 +65,28 @@ class _EditProfileNewState extends State<EditProfileNew> {
   Future<String?> _uploadImageToFirebase(File? imageFile) async {
     if (imageFile == null) return null;
 
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageReference =
-    FirebaseStorage.instance.ref().child('profile_images/$fileName');
+    try {
+      // Delete old image if exists
+      if (_uploadedImageUrl != null) {
+        await FirebaseStorage.instance.refFromURL(_uploadedImageUrl!).delete();
+      }
 
-    UploadTask uploadTask = storageReference.putFile(imageFile);
-    TaskSnapshot taskSnapshot = await uploadTask;
+      // Upload new image
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      Reference storageReference =
+      FirebaseStorage.instance.ref().child('profile_images/$fileName');
 
-    return await taskSnapshot.ref.getDownloadURL();
+      UploadTask uploadTask = storageReference.putFile(imageFile);
+      TaskSnapshot taskSnapshot = await uploadTask;
+
+      // Get download URL
+      return await taskSnapshot.ref.getDownloadURL();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to upload image. Please try again.")),
+      );
+      return null;
+    }
   }
 
   Future<void> _updateUserData(String? imageUrl) async {
@@ -153,100 +167,189 @@ class _EditProfileNewState extends State<EditProfileNew> {
         centerTitle: true,
         title: Text(
           "Edit Profile",
-          style: TextStyle(fontSize: width * 0.035, fontWeight: FontWeight.w700),
-        ),
-        backgroundColor: ClrConstant.whiteColor,
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          height: height * 0.9,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Stack(children: [
-                CircleAvatar(
-                  radius: width * 0.2,
-                  backgroundColor: ClrConstant.primaryColor.withOpacity(0.4),
-                  child: CircleAvatar(
-                    radius: width * 0.185,
-                    backgroundImage: _imgFile != null
-                        ? FileImage(_imgFile!)
-                        : (_uploadedImageUrl != null
-                        ? NetworkImage(_uploadedImageUrl!)
-                        : AssetImage(ImgConstant.dance_category1)) as ImageProvider,
-                  ),
-                ),
-                Positioned(
-                  top: height * 0.15,
-                  left: width * 0.28,
-                  child: GestureDetector(
-                    onTap: _showImageSourceDialog,
-                    child: CircleAvatar(
-                      radius: width * 0.045,
-                      backgroundColor: ClrConstant.primaryColor,
-                      child: Icon(
-                        Icons.add,
-                        color: ClrConstant.whiteColor,
-                      ),
-                    ),
-                  ),
-                )
-              ]),
-              Padding(
-                padding: EdgeInsets.all(width * 0.03),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: "Username",
-                        filled: true,
-                        fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                        suffixIcon: Icon(Icons.person),
-                      ),
-                    ),
-                    SizedBox(height: height * 0.015),
-                    TextFormField(
-                      controller: categoryController,
-                      decoration: InputDecoration(
-                        labelText: "Category",
-                        filled: true,
-                        fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                        suffixIcon: Icon(Icons.category),
-                      ),
-                    ),
-                    SizedBox(height: height * 0.015),
-                    TextFormField(
-                      controller: cityController,
-                      decoration: InputDecoration(
-                        labelText: "City",
-                        filled: true,
-                        fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                        suffixIcon: Icon(Icons.location_on),
-                      ),
-                    ),
-                    SizedBox(height: height * 0.015),
-                    TextFormField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(
-                        labelText: "Description",
-                        filled: true,
-                        fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                        suffixIcon: Icon(Icons.edit),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          style: TextStyle(
+              fontSize: width * 0.035,
+              fontWeight: FontWeight.w700,
+            color: ClrConstant.whiteColor
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _handleUpload,
         backgroundColor: ClrConstant.primaryColor,
-        child: Icon(Icons.cloud_upload),
       ),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(height: height*0.05,),
+            Stack(children: [
+              CircleAvatar(
+                radius: width * 0.2,
+                backgroundColor: ClrConstant.primaryColor.withOpacity(0.4),
+                child: CircleAvatar(
+                  radius: width * 0.185,
+                  backgroundImage: _imgFile != null
+                      ? FileImage(_imgFile!)
+                      : (_uploadedImageUrl != null
+                      ? NetworkImage(_uploadedImageUrl!)
+                      : AssetImage(ImgConstant.dance_category1)) as ImageProvider,
+                ),
+              ),
+              Positioned(
+                top: height * 0.15,
+                left: width * 0.28,
+                child: GestureDetector(
+                  onTap: _showImageSourceDialog,
+                  child: CircleAvatar(
+                    radius: width * 0.045,
+                    backgroundColor: ClrConstant.primaryColor,
+                    child: Icon(
+                      Icons.add,
+                      color: ClrConstant.whiteColor,
+                    ),
+                  ),
+                ),
+              )
+            ]),
+            SizedBox(height: height*0.05,),
+            Padding(
+              padding: EdgeInsets.all(width * 0.03),
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Username",
+                      filled: true,
+                      fillColor: ClrConstant.primaryColor.withOpacity(0.4),
+                      suffixIcon: Icon(Icons.person),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.015),
+                  TextFormField(
+                    controller: categoryController,
+                    decoration: InputDecoration(
+                      labelText: "Category",
+                      filled: true,
+                      fillColor: ClrConstant.primaryColor.withOpacity(0.4),
+                      suffixIcon: Icon(Icons.category),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.015),
+                  TextFormField(
+                    controller: cityController,
+                    decoration: InputDecoration(
+                      labelText: "City",
+                      filled: true,
+                      fillColor: ClrConstant.primaryColor.withOpacity(0.4),
+                      suffixIcon: Icon(Icons.location_on),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.015),
+                  TextFormField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      labelText: "Description",
+                      filled: true,
+                      fillColor: ClrConstant.primaryColor.withOpacity(0.4),
+                      suffixIcon: Icon(Icons.edit),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              // onTap: () async {
+              //   // Check if required fields are empty
+              //   if (nameController.text.trim().isEmpty ||
+              //       categoryController.text.trim().isEmpty ||
+              //       cityController.text.trim().isEmpty ||
+              //       descriptionController.text.trim().isEmpty) {
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(content: Text('Please fill in all fields.')),
+              //     );
+              //     return;
+              //   }
+              //
+              //   try {
+              //     // Upload image if selected, else keep the previous URL
+              //     String? imageUrl =
+              //     _imgFile != null ? await _uploadImageToFirebase(_imgFile) : _uploadedImageUrl;
+              //
+              //     // Update user data with the image URL
+              //     await _updateUserData(imageUrl);
+              //
+              //     // Notify the user of successful update
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(content: Text('Profile updated successfully!')),
+              //     );
+              //
+              //     // Optionally navigate back or refresh the screen
+              //     Navigator.pop(context);
+              //   } catch (e) {
+              //     // Handle errors gracefully
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       SnackBar(content: Text('Failed to save changes. Please try again.')),
+              //     );
+              //   }
+              // },
+              onTap: () async {
+                if (nameController.text.trim().isEmpty ||
+                    categoryController.text.trim().isEmpty ||
+                    cityController.text.trim().isEmpty ||
+                    descriptionController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Please fill in all fields.')),
+                  );
+                  return;
+                }
+
+                try {
+                  // Upload new image or keep old URL
+                  String? imageUrl =
+                  _imgFile != null ? await _uploadImageToFirebase(_imgFile) : _uploadedImageUrl;
+
+                  if (imageUrl != null) {
+                    // Update Firestore with new data
+                    await _updateUserData(imageUrl);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Profile updated successfully!')),
+                    );
+
+                    Navigator.pop(context); // Navigate back or refresh screen
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to save changes. Please try again.')),
+                  );
+                }
+              },
+
+              child: Container(
+                height: height * 0.04,
+                width: width * 0.3,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(width * 0.05),
+                  color: ClrConstant.primaryColor,
+                ),
+                child: Center(
+                  child: Text(
+                    "Save Changes",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: width * 0.03,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _handleUpload,
+      //   backgroundColor: ClrConstant.primaryColor,
+      //   child: Icon(Icons.cloud_upload),
+      // ),
     );
   }
 }
