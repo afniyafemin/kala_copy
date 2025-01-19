@@ -165,6 +165,7 @@ class _AllUpcomingEventsState extends State<AllUpcomingEvents> {
                                   MaterialPageRoute(
                                     builder: (context) =>
                                         SlotBooking(eventId: event['eventId'],
+                                          imageUrl: event['imageUrl'] ?? ImgConstant.event1,
                                           title: event['title'],
                                           location: event['location'],
                                           date: event['date'],

@@ -412,7 +412,7 @@ class _ProfileState extends State<Profile> {
                               padding: EdgeInsets.only(left: 15.0),
                               child: CircleAvatar(
                                 radius: width * 0.1,
-                                backgroundImage: AssetImage(ImgConstant.fav1),
+                                backgroundImage: NetworkImage(widget.user.profileImageUrl ?? ImgConstant.fav1),
                               ),
                             ),
                             SizedBox(height: height * 0.02),
@@ -631,7 +631,7 @@ class _ProfileState extends State<Profile> {
                               color: ClrConstant.primaryColor,
                               borderRadius: BorderRadius.circular(width * 0.1),
                               image: DecorationImage(
-                                image: AssetImage(ImgConstant.event1), // Placeholder for event image
+                                image: NetworkImage(event['imageUrl'] ?? ImgConstant.event1), // Use the imageUrl from the event
                                 fit: BoxFit.cover,
                               ),
                             ),

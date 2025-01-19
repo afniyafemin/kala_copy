@@ -10,6 +10,7 @@ class SlotBooking extends StatefulWidget {
   final String location;
   final String date;
   final String description;
+  final String imageUrl;
 
   const SlotBooking({
     Key? key,
@@ -18,6 +19,7 @@ class SlotBooking extends StatefulWidget {
     required this.location,
     required this.date,
     required this.description,
+    required this.imageUrl,
   }) : super(key: key);
 
   @override
@@ -127,8 +129,8 @@ class _SlotBookingState extends State<SlotBooking> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(width * 0.03),
                           image: DecorationImage(
-                            image: AssetImage(ImgConstant.event1),
-                            fit: BoxFit.fill,
+                            image: NetworkImage(widget.imageUrl), // Display the image from the URL
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
@@ -138,7 +140,14 @@ class _SlotBookingState extends State<SlotBooking> {
                         child: Text(
                           title.isNotEmpty ? title : 'Loading...',
                           style: TextStyle(
-                              color: ClrConstant.whiteColor,
+                              color: ClrConstant.blackColor,
+                              shadows: [
+                                Shadow(
+                                  color: ClrConstant.primaryColor,
+                                  offset: Offset(0, 3),
+                                  blurRadius: 2
+                                )
+                              ],
                               fontSize: width * 0.05,
                               fontWeight: FontWeight.w700),
                         ),

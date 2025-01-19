@@ -7,6 +7,7 @@ import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
 import '../main.dart';
 import '../services/add_event_to_firestore.dart';
+import '../services/imagepick.dart';
 import 'all_upcoming_events.dart';
 import 'slot_booking.dart';
 
@@ -32,10 +33,13 @@ class _CalendarviewAState extends State<CalendarView> {
     _loadEvents();
   }
 
+  Future<String?> _fetchUsername(String userId) async {
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    return userDoc.data()?['username']; // Assuming 'username' is the field name
+  }
+
   Future<void> _loadEvents() async {
-    // Fetch all events from Firestore
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('events').get();
+    final querySnapshot = await FirebaseFirestore.instance.collection('events').get();
 
     setState(() {
       events = {};
@@ -43,12 +47,16 @@ class _CalendarviewAState extends State<CalendarView> {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         final date = data['date'] as String;
 
-        // Ensure the events map is initialized for the date
-        if (!events.containsKey(date)) {
-          events[date] = [];
-        }
-        data['id'] = doc.id; // Add Firestore document ID
-        events[date]?.add(data); // Add the event data
+        // Fetch username based on userId
+        _fetchUsername(data['userId']).then((username) {
+          data['username'] = username; // Add username to event data
+          // Update the events map after fetching the username
+          if (!events.containsKey(date)) {
+            events[date] = [];
+          }
+          data['id'] = doc.id; // Add Firestore document ID
+          events[date]?.add(data); // Add the event data
+        });
       }
     });
   }
@@ -135,7 +143,6 @@ class _CalendarviewAState extends State<CalendarView> {
   //         const SnackBar(content: Text('User not logged in')));
   //   }
   // }
-
   void addEvent(BuildContext context, String userId) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -143,6 +150,8 @@ class _CalendarviewAState extends State<CalendarView> {
     final dateController = TextEditingController(
       text: DateFormat('yyyy-MM-dd').format(_selectedDay!),
     );
+    final seatsController = TextEditingController();
+    String? imageUrl; // Variable to store the image URL
 
     await showDialog(
       context: context,
@@ -151,12 +160,29 @@ class _CalendarviewAState extends State<CalendarView> {
           "Add New Event",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        content: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.4,
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.min,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(imageUrl != null ? "Image Selected" : "No Image Selected"),
+                  IconButton(
+                    icon: Icon(Icons.add_a_photo),
+                    onPressed: () async {
+                      String? url = await  pickImage();
+                      if (url != null) {
+                        setState(() {
+                          imageUrl = url; // Update the image URL
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              SizedBox(height: 8),
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: titleController,
@@ -170,6 +196,7 @@ class _CalendarviewAState extends State<CalendarView> {
                       borderSide: BorderSide(color: ClrConstant.blackColor)),
                 ),
               ),
+              SizedBox(height: 8),
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: descriptionController,
@@ -183,6 +210,7 @@ class _CalendarviewAState extends State<CalendarView> {
                       borderSide: BorderSide(color: ClrConstant.blackColor)),
                 ),
               ),
+              SizedBox(height: 8),
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: locationController,
@@ -196,6 +224,7 @@ class _CalendarviewAState extends State<CalendarView> {
                       borderSide: BorderSide(color: ClrConstant.blackColor)),
                 ),
               ),
+              SizedBox(height: 8),
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: dateController,
@@ -209,6 +238,20 @@ class _CalendarviewAState extends State<CalendarView> {
                       borderSide: BorderSide(color: ClrConstant.blackColor)),
                 ),
               ),
+              SizedBox(height: 8),
+              TextFormField(
+                cursorColor: ClrConstant.blackColor,
+                controller: seatsController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  counterText: "",
+                  hintText: "Number of seats available",
+                  border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: ClrConstant.blackColor),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -218,19 +261,35 @@ class _CalendarviewAState extends State<CalendarView> {
             child: const Text(
               "Cancel",
               style: TextStyle(
-                  color: ClrConstant.blackColor, fontWeight: FontWeight.w600),
+                color: ClrConstant.blackColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           TextButton(
             onPressed: () async {
               if (titleController.text.isEmpty ||
-                  descriptionController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("Required title and description")));
+                  descriptionController.text.isEmpty ||
+                  seatsController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Please fill in all required fields."),
+                  ),
+                );
                 return;
               }
 
               final formattedDate = dateController.text;
+              final totalSeats = int.tryParse(seatsController.text);
+
+              if (totalSeats == null || totalSeats <= 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Number of seats must be a valid positive number."),
+                  ),
+                );
+                return;
+              }
 
               // Generate and add the event
               await addEventToFirestore(
@@ -239,6 +298,8 @@ class _CalendarviewAState extends State<CalendarView> {
                 descriptionController.text,
                 locationController.text,
                 formattedDate,
+                totalSeats,
+                imageUrl,
               );
 
               Navigator.pop(context);
@@ -246,17 +307,21 @@ class _CalendarviewAState extends State<CalendarView> {
               descriptionController.clear();
               locationController.clear();
               dateController.clear();
+              seatsController.clear();
             },
             child: const Text(
               "Add Event",
               style: TextStyle(
-                  color: ClrConstant.blackColor, fontWeight: FontWeight.w600),
+                color: ClrConstant.blackColor,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -350,10 +415,32 @@ class _CalendarviewAState extends State<CalendarView> {
                                 height: height * 0.35,
                                 width: width * 0.35,
                                 decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                  image: AssetImage(ImgConstant.event1),
-                                  fit: BoxFit.cover,
-                                )),
+                                  borderRadius: BorderRadius.circular(width * 0.03),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(width * 0.03), // Ensure the image is also rounded
+                                  child: Image.network(
+                                    event['imageUrl'] ?? '', // Use an empty string if imageUrl is null
+                                    fit: BoxFit.cover,
+                                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                                      if (loadingProgress == null) return child; // If the image is loaded, return the child
+                                      return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress.expectedTotalBytes != null
+                                                ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                                                : null,
+                                          )
+                                      );
+                                    },
+                                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                      // If the network image fails, show the asset image
+                                      return Image.asset(
+                                        ImgConstant.event1, // Fallback asset image
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                               Column(
                                 mainAxisAlignment:
@@ -384,10 +471,12 @@ class _CalendarviewAState extends State<CalendarView> {
                                         fontWeight: FontWeight.w600),
                                   ),
 
-                                  Text("event holder : ${event['userId']}",
+                                  Text(
+                                    "Event holder: ${event['username'] ?? 'Unknown'}",
                                     style: TextStyle(
-                                      fontSize: width*0.02
-                                    ),
+                                        fontSize: width * 0.025,
+                                        color: ClrConstant.blackColor,
+                                        fontWeight: FontWeight.w600),
                                   ),
 
                                   // Text(
@@ -420,6 +509,7 @@ class _CalendarviewAState extends State<CalendarView> {
                                               location: event['location'],
                                               date: event['date'],
                                               description: event['description'],
+                                              imageUrl: event['imageUrl'] ?? ImgConstant.event1,
                                             ),
                                           ));
                                       setState(() {});

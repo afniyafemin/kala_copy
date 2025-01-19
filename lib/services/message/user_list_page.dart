@@ -73,6 +73,7 @@ class _MessagePageState extends State<MessagePage> {
           'chatId': doc.id,
           'otherUserId': otherUserId,
           'otherUsername': userDoc.data()?['username'] ?? 'Unknown User',
+          'profileImageUrl': userDoc.data()?['profileImageUrl'] ?? '',
           'lastMessage': data['lastMessage'] ?? {},
         };
       }).toList());
@@ -95,8 +96,11 @@ class _MessagePageState extends State<MessagePage> {
                 final user = _users[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage(ImgConstant.event1), // Default avatar
+                    backgroundImage: user['profileImageUrl'] != null && user['profileImageUrl'].isNotEmpty
+                        ? NetworkImage(user['profileImageUrl'])
+                        : AssetImage(ImgConstant.event1) as ImageProvider,
                   ),
+
                   title: Text(user['username'] ?? 'Unknown User'),
                   onTap: () {
                     Navigator.pop(context);
@@ -146,10 +150,11 @@ class _MessagePageState extends State<MessagePage> {
               final lastMessage = chat['lastMessage'] as Map<String, dynamic>;
               final content = lastMessage['content'] ?? '';
               final timestamp = lastMessage['timestamp'] != null
-                  ? DateTime.fromMillisecondsSinceEpoch(
-                lastMessage['timestamp'],
-              )
+                  ? (lastMessage['timestamp'] is Timestamp
+                  ? (lastMessage['timestamp'] as Timestamp).toDate()
+                  : DateTime.fromMillisecondsSinceEpoch(lastMessage['timestamp']))
                   : null;
+
               final isRead = lastMessage['read'] ?? false;
 
               final formattedTime = timestamp != null
@@ -158,8 +163,11 @@ class _MessagePageState extends State<MessagePage> {
 
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: AssetImage(ImgConstant.event1), // Default avatar
+                  backgroundImage: chat['profileImageUrl'] != null && chat['profileImageUrl'].isNotEmpty
+                      ? NetworkImage(chat['profileImageUrl'])
+                      : AssetImage(ImgConstant.event1) as ImageProvider,
                 ),
+
                 title: Text('$otherUsername',
                 style: TextStyle(
                   fontWeight: FontWeight.w700,

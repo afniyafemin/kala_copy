@@ -81,6 +81,7 @@ class _EventsGalleryState extends State<EventsGallery> {
                   builder: (context) => SlotBooking(
                     eventId: event['eventId'],  // Passing the documentId as eventId
                     title: event['title'],
+                    imageUrl: event['imageUrl'] ?? ImgConstant.event1,
                     location: event['location'],
                     date: event['date'],
                     description: event['description'],

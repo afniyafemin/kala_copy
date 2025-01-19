@@ -6,7 +6,7 @@ class UserModel {
   String? phone;
   String? city;
   String? description;
-  String? profilePicUrl; // Added field for profile picture URL
+  String? profileImageUrl; // Added field for profile picture URL
   bool isFavorite;
   List<String> followers;
   List<String> following;
@@ -20,7 +20,7 @@ class UserModel {
     required this.phone,
     required this.city,
     this.description,
-    this.profilePicUrl, // Initialize with null (optional)
+    this.profileImageUrl, // Initialize with null (optional)
     this.isFavorite = false,
     this.followers = const [],
     this.following = const [],
@@ -36,7 +36,7 @@ class UserModel {
       'phone': phone,
       'city': city,
       'description': description ?? "when art meets technology",
-      'profilePicUrl': profilePicUrl, // Add profile picture URL to map
+      'profileImageUrl': profileImageUrl, // Add profile picture URL to map
       'isFavorite': isFavorite,
       'followers': followers,
       'following': following,
@@ -53,7 +53,7 @@ class UserModel {
       city: data['city'],
       category: data['category'],
       description: data['description'] ?? "when art meets technology",
-      profilePicUrl: data['profilePicUrl']?.toString(), // Extract profile picture URL
+      profileImageUrl: data['profileImageUrl']?.toString(), // Extract profile picture URL
       isFavorite: data['isFavorite'] ?? false,
       followers: List<String>.from(data['followers'] ?? []),
       following: List<String>.from(data['following'] ?? []),
@@ -69,7 +69,7 @@ class UserModel {
     String? phone,
     String? city,
     String? description,
-    String? profilePicUrl,
+    String? profileImageUrl,
     bool? isFavorite,
     List<String>? followers,
     List<String>? following,
@@ -83,7 +83,7 @@ class UserModel {
       phone: phone ?? this.phone,
       city: city ?? this.city,
       description: description ?? this.description,
-      profilePicUrl: profilePicUrl ?? this.profilePicUrl, // Handle profile picture URL
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl, // Handle profile picture URL
       isFavorite: isFavorite ?? this.isFavorite,
       followers: followers ?? this.followers,
       following: following ?? this.following,

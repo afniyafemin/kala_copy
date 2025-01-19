@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
       topArtists = querySnapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
         return UserModel.fromMap(data); // Convert to UserModel
+
       }).toList();
     } catch (e) {
       print('Error fetching top artists: $e');
@@ -62,14 +63,17 @@ class _HomePageState extends State<HomePage> {
     Map<String, dynamic> userData = {
       'favoritedUser Id': user.uid,
       'name': user.username,
-      'img': ImgConstant.event1,
+      'img': user.profileImageUrl ?? ImgConstant.event1,
       'description': 'Description of the user or item',
       'isFavorited': true, // Add isFavorited field
+
+
     };
 
     await _addToFav.toggleLike(itemId, userData);
     setState(() {
       user.isFavorite = !user.isFavorite; // Toggle the favorite state
+
     });
   }
 
@@ -190,12 +194,14 @@ class _HomePageState extends State<HomePage> {
                                       borderRadius:
                                           BorderRadius.circular(width * 0.05),
                                       image: DecorationImage(
-                                        image: AssetImage(
-                                            ImgConstant.dance_category3),
+                                        image: artist.profileImageUrl != null && artist.profileImageUrl!.isNotEmpty
+                                            ? NetworkImage(artist.profileImageUrl!)
+                                            : AssetImage(ImgConstant.dance_category3) as ImageProvider,
                                         fit: BoxFit.cover,
                                       )),
                                 ),
                               ),
+
                               Padding(
                                 padding: EdgeInsets.only(
                                     left: width * 0.05, top: height * 0.2),
@@ -304,12 +310,11 @@ class _HomePageState extends State<HomePage> {
                                 children: [
                                   CircleAvatar(
                                     radius: width * 0.04,
-                                    backgroundColor: ClrConstant.whiteColor,
-                                    backgroundImage: user.profilePicUrl != null && user.profilePicUrl!.isNotEmpty
-                                        ? NetworkImage(user.profilePicUrl!) // Use profile image URL
+                                    //backgroundColor: ClrConstant.whiteColor,
+                                    backgroundImage: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
+                                        ? NetworkImage(user.profileImageUrl!) // Use profile image URL
                                         : AssetImage(ImgConstant.fav2) as ImageProvider, // Fallback image
                                   ),
-
                                   SizedBox(width: width * 0.03),
                                   Text(
                                     user.username ?? 'Unknown user',

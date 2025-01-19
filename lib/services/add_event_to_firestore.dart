@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 Future<void> addEventToFirestore(String userId, String title, String description,
-    String location, String date) async {
+    String location, String date, int totalSeats ,String? imageUrl,) async {
   // Generate a unique eventId
   final eventDoc = FirebaseFirestore.instance.collection('events').doc();
   final eventId = eventDoc.id;
@@ -14,7 +14,9 @@ Future<void> addEventToFirestore(String userId, String title, String description
     "description": description,
     "location": location,
     "date": date,
+    'totalSeats': totalSeats,
     "dateCreated": FieldValue.serverTimestamp(), // Server-side timestamp
+    'imageUrl': imageUrl,
   };
 
   try {

@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../bottom_navigation_bar/bottom_navigation.dart';
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
 import '../main.dart';
 import '../services/sign_in_method.dart';
+import 'google_signup.dart';
 import 'otp_signup.dart';
 
 
@@ -21,6 +23,24 @@ class _LoginState extends State<Login> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  void handleGoogleSignIn(BuildContext context) async {
+    try {
+      User? user = await SigninWithGoogle(context);
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNavigationPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google Sign-In failed or was canceled.")),
+        );
+      }
+    } catch (e) {
+      print("Error during Google Sign-In: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,26 +218,29 @@ class _LoginState extends State<Login> {
                       ),
                       Column(
                         children: [
-                          Container(
-                            height: height*0.05,
-                            width: width*0.5,
-                            decoration: BoxDecoration(
-                              color: ClrConstant.primaryColor.withOpacity(0.75),
-                              borderRadius: BorderRadius.circular(width*0.05),
-                            ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Image(image: AssetImage(ImgConstant.google),fit: BoxFit.fill,height: height*0.03,color: ClrConstant.blackColor,),
-                                  Text("Sign in with Google",
-                                    style: TextStyle(
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w700
+                          GestureDetector(
+                            onTap: () => handleGoogleSignIn(context),
+                            child: Container(
+                              height: height*0.05,
+                              width: width*0.5,
+                              decoration: BoxDecoration(
+                                color: ClrConstant.primaryColor.withOpacity(0.75),
+                                borderRadius: BorderRadius.circular(width*0.05),
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Image(image: AssetImage(ImgConstant.google),fit: BoxFit.fill,height: height*0.03,color: ClrConstant.blackColor,),
+                                    Text("Sign in with Google",
+                                      style: TextStyle(
+                                          color: ClrConstant.blackColor,
+                                          fontWeight: FontWeight.w700
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox()
-                                ],
+                                    SizedBox()
+                                  ],
+                                ),
                               ),
                             ),
                           ),

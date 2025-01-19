@@ -36,33 +36,33 @@ class _InviteArtistState extends State<InviteArtist> {
   final TextEditingController cityController = TextEditingController();
   final TextEditingController numberOfPeopleController = TextEditingController();
 
-  Future<void> fetchEvent() async {
-    try {
-      DocumentSnapshot snapshot = await FirebaseFirestore.instance
-          .collection('events')
-          .doc(widget.eventId)
-          .get();
-
-      if (snapshot.exists) {
-        var eventData = snapshot.data() as Map<String, dynamic>;
-        setState(() {
-          title = eventData['title'] ?? 'No Title';
-          description = eventData['description'] ?? 'No Description';
-          location = eventData['location'] ?? 'No Location';
-          date = eventData['date'] ?? DateTime.now().toIso8601String();
-        });
-      } else {
-        setState(() {
-          title = 'Event Not Found';
-          description = '';
-          location = '';
-          date = '';
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching event: $e');
-    }
-  }
+  // Future<void> fetchEvent() async {
+  //   try {
+  //     DocumentSnapshot snapshot = await FirebaseFirestore.instance
+  //         .collection('events')
+  //         .doc(widget.eventId)
+  //         .get();
+  //
+  //     if (snapshot.exists) {
+  //       var eventData = snapshot.data() as Map<String, dynamic>;
+  //       setState(() {
+  //         title = eventData['title'] ?? 'No Title';
+  //         description = eventData['description'] ?? 'No Description';
+  //         location = eventData['location'] ?? 'No Location';
+  //         date = eventData['date'] ?? DateTime.now().toIso8601String();
+  //       });
+  //     } else {
+  //       setState(() {
+  //         title = 'Event Not Found';
+  //         description = '';
+  //         location = '';
+  //         date = '';
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error fetching event: $e');
+  //   }
+  // }
 
   Future<void> confirmBooking() async {
     try {
@@ -87,6 +87,65 @@ class _InviteArtistState extends State<InviteArtist> {
     }
   }
 
+  Stream<List<Map<String, dynamic>>> fetchBookedUsers() {
+    return FirebaseFirestore.instance
+        .collection('bookings')
+        .where('eventId', isEqualTo: widget.eventId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'name': data['name'] ?? 'Unknown',
+        'numberOfPeople': data['numberOfPeople'] ?? 0,
+        'email': data['email'] ?? 'Unknown',
+      };
+    }).toList());
+  }
+
+  int totalSeats = 0;
+  int bookedSeats = 0;
+
+  Future<void> fetchEventDetails() async {
+    try {
+      // Fetch event details
+      DocumentSnapshot eventSnapshot = await FirebaseFirestore.instance
+          .collection('events')
+          .doc(widget.eventId)
+          .get();
+
+      if (eventSnapshot.exists) {
+        var eventData = eventSnapshot.data() as Map<String, dynamic>;
+        setState(() {
+          title = eventData['title'] ?? 'No Title';
+          description = eventData['description'] ?? 'No Description';
+          location = eventData['location'] ?? 'No Location';
+          date = eventData['date'] ?? DateTime.now().toIso8601String();
+          totalSeats = eventData['numberOfSeats'] ?? 0;
+        });
+      }
+
+      // Calculate total booked seats
+      QuerySnapshot bookingsSnapshot = await FirebaseFirestore.instance
+          .collection('bookings')
+          .where('eventId', isEqualTo: widget.eventId)
+          .get();
+
+      int bookedCount = bookingsSnapshot.docs.fold<int>(
+        0,
+            (previousValue, element) {
+          var data = element.data() as Map<String, dynamic>;
+          return previousValue + (data['numberOfPeople'] ?? 0) as int;
+        },
+      );
+
+      setState(() {
+        bookedSeats = bookedCount;
+      });
+    } catch (e) {
+      debugPrint('Error fetching event or bookings: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -94,8 +153,8 @@ class _InviteArtistState extends State<InviteArtist> {
     description = widget.description;
     location = widget.location;
     date = widget.date;
-
-    fetchEvent();
+    fetchEventDetails();
+    // fetchEvent();
   }
 
   @override
@@ -108,7 +167,7 @@ class _InviteArtistState extends State<InviteArtist> {
       appBar: AppBar(
         backgroundColor: ClrConstant.whiteColor,
         title: Text(
-          "Invite Artist",
+          title,
           style: TextStyle(fontSize: width * 0.04),
         ),
         centerTitle: true,
@@ -152,6 +211,7 @@ class _InviteArtistState extends State<InviteArtist> {
                   Row(children: [Text("Description: $description")]),
                   SizedBox(height: height * 0.01),
                   Row(children: [Text("Location: $location")]),
+
                 ],
               ),
               SizedBox(height: height * 0.1),
@@ -179,6 +239,74 @@ class _InviteArtistState extends State<InviteArtist> {
                     ),
                   ),
                 ),
+              ),
+              SizedBox(
+                height: height*0.02,
+              ),
+              Divider(color: ClrConstant.primaryColor,
+              height: height*0.02,),
+              Text(
+                "Booked People",
+                style: TextStyle(
+                  fontSize: width * 0.05,
+                  fontWeight: FontWeight.bold,
+                  color: ClrConstant.primaryColor,
+                ),
+              ),
+              SizedBox(height: height * 0.02),
+              Row(mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    "Seats Booked: $bookedSeats / $totalSeats",
+                    style: TextStyle(
+                      fontSize: width * 0.03,
+                      fontWeight: FontWeight.bold,
+                      color: ClrConstant.blackColor,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: height * 0.02),
+              StreamBuilder<List<Map<String, dynamic>>>(
+                stream: fetchBookedUsers(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text("Error loading bookings: ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text("No bookings yet.");
+                  }
+
+                  final bookings = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: bookings.length,
+                    itemBuilder: (context, index) {
+                      final booking = bookings[index];
+                      return Card(
+                        child: ListTile(
+                          tileColor: ClrConstant.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(width*0.02)
+                          ),
+                          title: Text(booking['name']),
+                          subtitle: Column(
+                            // mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  "Number of People: ${booking['numberOfPeople']}"),
+                              Text(
+                                  "Email: ${booking['email']}"),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
