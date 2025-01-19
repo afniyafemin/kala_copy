@@ -330,7 +330,7 @@ class _CalendarviewAState extends State<CalendarView> {
                 }
               },
             ),
-            SizedBox(
+            Container(
               height: height * 0.5,
               child: SingleChildScrollView(
                 child: Column(
@@ -383,6 +383,13 @@ class _CalendarviewAState extends State<CalendarView> {
                                         color: ClrConstant.blackColor,
                                         fontWeight: FontWeight.w600),
                                   ),
+
+                                  Text("event holder : ${event['userId']}",
+                                    style: TextStyle(
+                                      fontSize: width*0.02
+                                    ),
+                                  ),
+
                                   // Text(
                                   //   event['date'] ?? 'N',
                                   //   textAlign: TextAlign.start,
@@ -391,9 +398,11 @@ class _CalendarviewAState extends State<CalendarView> {
                                   //       color: ClrConstant.blackColor,
                                   //       fontWeight: FontWeight.w600),
                                   // ),
+
                                   SizedBox(
                                     height: height * 0.05,
                                   ),
+
                                   InkWell(
                                     onTap: () async {
                                       print("id : ${event['id']}");
@@ -436,7 +445,7 @@ class _CalendarviewAState extends State<CalendarView> {
                                   ),
                                 ],
                               ),
-                              const SizedBox()
+                              SizedBox()
                             ],
                           ),
                         ))

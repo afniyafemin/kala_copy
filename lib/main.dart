@@ -32,9 +32,6 @@ class MyApp extends StatelessWidget {
       supportedLocales: [
         const Locale('en','us'),
       ],
-      // theme: ThemeData(
-      //     textTheme: GoogleFonts.rubikTextTheme()
-      // ),
     );
   }
 }

@@ -205,7 +205,9 @@ class _MessagePageState extends State<MessagePage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: ClrConstant.primaryColor,
         onPressed: _startNewChat,
-        child: const Icon(Icons.chat),
+        child: const Icon(Icons.chat,
+          color: ClrConstant.whiteColor,
+        ),
       ),
     );
   }

@@ -256,6 +256,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
                 ],
               ),
             ),
+            SizedBox(height: height*0.05,),
             GestureDetector(
               // onTap: () async {
               //   // Check if required fields are empty

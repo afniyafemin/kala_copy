@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kala_copy/profile/invite_artist.dart';
 
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
@@ -90,145 +91,190 @@ class _MyEventsListState extends State<MyEventsList> {
                         right: width * 0.03,
                         left: width * 0.03,
                       ),
-                      child: Container(
-                        height: height * 0.17,
-                        width: width * 0.85,
-                        decoration: BoxDecoration(
-                          color: ClrConstant.primaryColor.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(width * 0.05),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  height: height * 0.18,
-                                  width: width * 0.25,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(ImgConstant.event1),
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(width * 0.05),
-                                      bottomLeft: Radius.circular(width * 0.05),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => InviteArtist(
+                                  eventId: event['id'],
+                                  title: event['title'],
+                                  location: event['location'],
+                                  date: event['date'],
+                                  description: event['description'],
+                                ),
+                              ));
+                        },
+                        child: Container(
+                          height: height * 0.17,
+                          width: width * 0.85,
+                          decoration: BoxDecoration(
+                            color: ClrConstant.primaryColor.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(width * 0.05),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    height: height * 0.18,
+                                    width: width * 0.25,
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: AssetImage(ImgConstant.event1),
+                                        fit: BoxFit.cover,
+                                      ),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(width * 0.05),
+                                        bottomLeft: Radius.circular(width * 0.05),
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.all(width * 0.025),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            event["title"],
-                                            style: TextStyle(
-                                              fontSize: width * 0.04,
-                                              color: ClrConstant.blackColor,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          SizedBox(height: height * 0.005),
-                                          Text(
-                                            event["description"],
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: width * 0.035,
-                                              color: ClrConstant.blackColor,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                          SizedBox(height: height * 0.005),
-                                          Text(
-                                            event["location"],
-                                            style: TextStyle(
-                                              fontSize: width * 0.035,
-                                              color: ClrConstant.blackColor,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                          SizedBox(height: height * 0.005),
-                                          Text(
-                                            event["date"].toString(),
-                                            style: TextStyle(
-                                              fontSize: width * 0.035,
-                                              color: ClrConstant.blackColor,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      backgroundColor: ClrConstant.primaryColor,
-                                      title: Text(
-                                        "Are you sure you want to delete this event?",
-                                        style: TextStyle(
-                                          color: ClrConstant.blackColor,
-                                          fontSize: width * 0.035,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      actions: [
-                                        GestureDetector(
-                                          onTap: () {
-                                            deleteEvent(event['id']);
-                                            Navigator.pop(context);
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.all(width * 0.03),
-                                            child: Text(
-                                              "Delete",
+                                  Padding(
+                                    padding: EdgeInsets.all(width * 0.025),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              event["title"],
                                               style: TextStyle(
+                                                fontSize: width * 0.04,
                                                 color: ClrConstant.blackColor,
-                                                fontSize: width * 0.035,
-                                                fontWeight: FontWeight.w700,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                          ),
-                                        ),
-                                        GestureDetector(
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Padding(
-                                            padding: EdgeInsets.all(width * 0.03),
-                                            child: Text(
-                                              "Cancel",
+                                            SizedBox(height: height * 0.005),
+                                            Text(
+                                              event["description"],
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                               style: TextStyle(
-                                                color: ClrConstant.blackColor,
                                                 fontSize: width * 0.035,
-                                                fontWeight: FontWeight.w700,
+                                                color: ClrConstant.blackColor,
+                                                fontWeight: FontWeight.w400,
                                               ),
                                             ),
-                                          ),
+                                            SizedBox(height: height * 0.005),
+                                            Text(
+                                              event["location"],
+                                              style: TextStyle(
+                                                fontSize: width * 0.035,
+                                                color: ClrConstant.blackColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                            SizedBox(height: height * 0.005),
+                                            Text(
+                                              event["date"].toString(),
+                                              style: TextStyle(
+                                                fontSize: width * 0.035,
+                                                color: ClrConstant.blackColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
-                                    );
-                                  },
-                                );
-                              },
-                              child: Padding(
-                                padding: EdgeInsets.all(width * 0.03),
-                                child: Icon(Icons.delete, color: Colors.redAccent),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap : (){
+
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.all(width * 0.03),
+                                      child: Container(
+                                        height: height*0.03,
+                                          width: width*0.125,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(width*0.05),
+                                            color: ClrConstant.primaryColor,
+                                          ),
+
+                                          child: Center(child: Text("add",
+                                            style: TextStyle(
+                                                color: ClrConstant.whiteColor,
+                                                fontWeight: FontWeight.w600,
+                                              fontSize: width*0.03
+                                            ),
+                                          )
+                                          )
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: width*0.01,),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            backgroundColor: ClrConstant.primaryColor,
+                                            title: Text(
+                                              "Are you sure you want to delete this event?",
+                                              style: TextStyle(
+                                                color: ClrConstant.blackColor,
+                                                fontSize: width * 0.035,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            actions: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  deleteEvent(event['id']);
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(width * 0.03),
+                                                  child: Text(
+                                                    "Delete",
+                                                    style: TextStyle(
+                                                      color: ClrConstant.blackColor,
+                                                      fontSize: width * 0.035,
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(width * 0.03),
+                                                  child: Text(
+                                                    "Cancel",
+                                                    style: TextStyle(
+                                                      color: ClrConstant.blackColor,
+                                                      fontSize: width * 0.035,
+                                                      fontWeight: FontWeight.w700,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.all(width * 0.03),
+                                      child: Icon(Icons.delete, color: Colors.redAccent),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
