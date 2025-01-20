@@ -527,7 +527,7 @@ class _ProfileState extends State<Profile> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => WorksGallery()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => WorksGallery(userId: widget.user.uid)));
                           },
                           child: Container(
                             height: height * 0.1,

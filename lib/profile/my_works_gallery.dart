@@ -1,10 +1,12 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kala_copy/main.dart';
 
 import '../constants/color_constant.dart';
-import '../constants/image_constant.dart';
-
 
 class MyWorksGallery extends StatefulWidget {
   const MyWorksGallery({super.key});
@@ -13,290 +15,375 @@ class MyWorksGallery extends StatefulWidget {
   State<MyWorksGallery> createState() => _MyWorksGalleryState();
 }
 
-var height;
-var width;
-
 class _MyWorksGalleryState extends State<MyWorksGallery> {
+  late double width;
 
-  int like = 0;
+  Future<List<Map<String, dynamic>>> _fetchGalleryData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) throw Exception("User not logged in");
 
-  List<Map> myWorks = [
-    {"img": ImgConstant.event1, "description": "hello everyone1"},
-    {"img": ImgConstant.dance_category1, "description": "hello everyone2"},
-    {"img": ImgConstant.dance_category2, "description": "hello everyone3"},
-    {"img": ImgConstant.event2, "description": "hello everyone4"},
-    {"img": ImgConstant.dance_category3, "description": "hello everyone5"},
-    {"img": ImgConstant.add3, "description": "hello everyone6"},
-    {"img": ImgConstant.add1, "description": "hello everyone7"},
-  ];
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    final docSnapshot = await userDoc.get();
+    if (docSnapshot.exists && docSnapshot.data() != null) {
+      final gallery = docSnapshot.data()?['gallery'] as List<dynamic>? ?? [];
+      return gallery.map((e) => Map<String, dynamic>.from(e)).toList();
+    }
+
+    return [];
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+
+      final description = await _getDescription();
+      if (description == null || description.trim().isEmpty) return;
+
+      try {
+        String imageUrl = await _uploadImageToFirebase(imageFile);
+        await _addToFirestore(imageUrl, description);
+        if (mounted) {
+          setState(() {}); // Trigger a rebuild to fetch new data
+        }
+      } catch (e) {
+        print("Error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to upload image")),
+        );
+      }
+    }
+  }
+
+  Future<String> _uploadImageToFirebase(File imageFile) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final ref = FirebaseStorage.instance.ref().child('gallery/$fileName');
+
+    final uploadTask = await ref.putFile(imageFile);
+    return await uploadTask.ref.getDownloadURL();
+  }
+
+  Future<void> _addToFirestore(String imageUrl, String description) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc =
+    FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    await userDoc.update({
+      "gallery": FieldValue.arrayUnion([
+        {
+          "postUrl": imageUrl,
+          "description": description,
+          "comments": [],
+          "likes": 0,
+        }
+      ])
+    });
+  }
+
+  Future<String?> _getDescription() async {
+    String? description;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Add a Description"),
+          content: TextField(
+            autofocus: true,
+            onChanged: (value) {
+              description = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+    return description;
+  }
+
+  void _showImageDetails(Map<String, dynamic> item) {
+    showDialog(
+      barrierColor: ClrConstant.blackColor.withOpacity(0.5),
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: ClrConstant.whiteColor,
+          surfaceTintColor: ClrConstant.blackColor.withOpacity(0.2),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Display Image
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(item["postUrl"]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                // Description
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    item["description"] ?? "No description",
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                const Divider(),
+
+                // Comments Section
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: (item["comments"] as List<dynamic>).length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: const Icon(Icons.comment),
+                      title: Text(item["comments"][index]),
+                    );
+                  },
+                ),
+
+                const Divider(),
+
+                // Likes and Edit Button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // Like Button
+
+                    Text("${item["likes"]} Likes"),
+
+                    // Edit Button
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: ClrConstant.primaryColor),
+                      onPressed: () {
+                        Navigator.pop(context); // Close dialog
+                        _showEditDialog(item); // Open Edit Dialog
+                      },
+                    ),
+                  ],
+                ),
+
+                // Close Button
+                ElevatedButton(style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(width*0.02)
+                  ),
+                  backgroundColor: ClrConstant.primaryColor,
+                  foregroundColor: ClrConstant.blackColor
+                ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Close"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditDialog(Map<String, dynamic> item) {
+    String updatedDescription = item["description"];
+    bool imageUpdated = false;
+    File? newImage;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Edit Work"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Update Image
+              ElevatedButton(
+                onPressed: () async {
+                  final picker = ImagePicker();
+                  final pickedFile =
+                  await picker.pickImage(source: ImageSource.gallery);
+
+                  if (pickedFile != null) {
+                    setState(() {
+                      newImage = File(pickedFile.path);
+                      imageUpdated = true;
+                    });
+                  }
+                },
+                child: const Text("Change Image"),
+              ),
+
+              // Edit Description
+              TextField(
+                controller: TextEditingController(text: item["description"]),
+                onChanged: (value) {
+                  updatedDescription = value;
+                },
+                decoration: const InputDecoration(labelText: "Description"),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Delete Button
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                onPressed: () async {
+                  await _deleteWork(item);
+                  Navigator.pop(context); // Close the edit dialog
+                  setState(() {}); // Refresh gallery
+                },
+                child: const Text("Delete Work"),
+              ),
+            ],
+          ),
+          actions: [
+            // Save Changes
+            TextButton(
+              onPressed: () async {
+                if (imageUpdated && newImage != null) {
+                  final newImageUrl = await _uploadImageToFirebase(newImage!);
+                  item["postUrl"] = newImageUrl;
+                }
+
+                item["description"] = updatedDescription;
+                await _updateFirestore(item);
+
+                Navigator.pop(context); // Close the dialog
+                setState(() {}); // Refresh gallery
+              },
+              child: const Text("Save"),
+            ),
+
+            // Cancel
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+              },
+              child: const Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteWork(Map<String, dynamic> item) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    await userDoc.update({
+      "gallery": FieldValue.arrayRemove([item]),
+    });
+  }
+
+  Future<void> _updateFirestore(Map<String, dynamic> updatedItem) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final userDoc = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    final docSnapshot = await userDoc.get();
+    if (docSnapshot.exists) {
+      List<dynamic> gallery = docSnapshot.data()?["gallery"] ?? [];
+      gallery = gallery.map((e) {
+        if (e["postUrl"] == updatedItem["postUrl"]) return updatedItem;
+        return e;
+      }).toList();
+
+      await userDoc.update({"gallery": gallery});
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
         backgroundColor: ClrConstant.primaryColor,
-        title: Text(
+        title: const Text(
           "My Gallery",
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(width * 0.03),
-          child: Container(
-            height: height * 0.9,
-            child: GridView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              itemCount: myWorks.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: width * 0.03,
-                crossAxisSpacing: width * 0.03,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (context) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              height: height * 0.5,
-                              width: width * 0.75,
-                              decoration: BoxDecoration(
-                                color: ClrConstant.primaryColor,
-                                borderRadius:
-                                    BorderRadius.circular(width * 0.05),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: ClrConstant.blackColor
-                                          .withOpacity(0.5),
-                                      blurRadius: width * 0.3,
-                                      spreadRadius: width * 1)
-                                ],
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(width * 0.03),
-                                child: Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Container(
-                                      height: height * 0.3,
-                                      width: width * 0.6,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                              width * 0.03),
-                                          image: DecorationImage(
-                                              image: AssetImage(
-                                                  myWorks[index]["img"]),
-                                              fit: BoxFit.fill)),
-                                    ),
-                                    Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(
-                                              myWorks[index]["description"],
-                                              style: TextStyle(
-                                                  fontSize: width * 0.03,
-                                                  color:
-                                                      ClrConstant.whiteColor),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                          height: height * 0.015,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        // like ++;
-                                                      });
-                                                    },
-                                                    child: Icon(Icons
-                                                        .favorite_outline_rounded)),
-                                                // Text("$like",
-                                                //   style: TextStyle(
-                                                //     fontSize: width*0.03,
-                                                //     color: ClrConstant.blackColor.withOpacity(0.35)
-                                                //   ),
-                                                // ),
-                                                SizedBox(
-                                                  width: width * 0.03,
-                                                ),
-                                                Icon(Icons.share),
-                                                SizedBox(
-                                                  width: width * 0.03,
-                                                ),
-                                                GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
+      body: FutureBuilder<List<Map<String, dynamic>>>(
 
-                                                      });
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (context) {
-                                                          return AlertDialog(
-                                                            backgroundColor: ClrConstant.primaryColor,
-                                                            title: Text("Are you sure? you want to delete this post permanently?",
-                                                              style: TextStyle(
-                                                                  color: ClrConstant.blackColor,
-                                                                  fontSize: width*0.03,
-                                                                  fontWeight: FontWeight.w700
-                                                              ),
-                                                            ),
-                                                            actions: [
-                                                              GestureDetector(
-                                                                onTap:(){
-                                                                  setState(() {
-                                                                    myWorks.removeAt(index);
-                                                                  });
-                                                                  Navigator.pop(context);
-                                                                },
-                                                                child: Padding(
-                                                                  padding:  EdgeInsets.all(width*0.03),
-                                                                  child: Text("delete",
-                                                                    style: TextStyle(
-                                                                        color: ClrConstant.blackColor,
-                                                                        fontSize: width*0.03,
-                                                                        fontWeight: FontWeight.w700
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              GestureDetector(
-                                                                onTap:(){
-                                                                  setState(() {
+        future: _fetchGalleryData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text("Failed to load gallery"));
+          } else if (snapshot.data == null || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No works found"));
+          }
 
-                                                                  });
-                                                                  Navigator.pop(context);
-                                                                },
-                                                                child: Padding(
-                                                                  padding:  EdgeInsets.all(width*0.03),
-                                                                  child: Text("cancel",
-                                                                    style: TextStyle(
-                                                                        color: ClrConstant.blackColor,
-                                                                        fontSize: width*0.03,
-                                                                        fontWeight: FontWeight.w700
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                    child: Icon(Icons.delete)
-                                                ),
-                                              ],
-                                            ),
-                                            GestureDetector(
-                                                onTap: () {
-                                                  // Navigator.push(
-                                                  //     context,
-                                                  //     MaterialPageRoute(
-                                                  //       builder: (context) =>
-                                                  //           MyCommentsPage(),
-                                                  //     ));
-                                                  setState(() {});
-                                                },
-                                                child: Text(
-                                                  "view all comments",
-                                                  style: TextStyle(
-                                                      color: ClrConstant
-                                                          .whiteColor,
-                                                      fontSize: width * 0.02),
-                                                ))
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                    setState(() {});
-                  },
-                  child: Container(
-                    width: width * 0.3,
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                            color: ClrConstant.primaryColor,
-                            width: width * 0.0075),
-                        borderRadius: BorderRadius.circular(width * 0.03),
-                        image: DecorationImage(
-                            image: AssetImage(myWorks[index]["img"]),
-                            fit: BoxFit.cover)),
-                  ),
-                );
-              },
+          final gallery = snapshot.data!;
+          return GridView.builder(
+            padding: EdgeInsets.all(width * 0.03),
+            itemCount: gallery.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: width * 0.03,
+              crossAxisSpacing: width * 0.03,
+              childAspectRatio: 1,
             ),
-          ),
-        ),
+            itemBuilder: (BuildContext context, int index) {
+              return GestureDetector(
+                onTap: () => _showImageDetails(gallery[index]),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: ClrConstant.primaryColor,
+                      width: width * 0.0075,
+                    ),
+                    borderRadius: BorderRadius.circular(width * 0.03),
+                    image: DecorationImage(
+                      image: NetworkImage(gallery[index]["postUrl"]),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: ClrConstant.primaryColor,
-        onPressed: () {
-          showCupertinoDialog(
-            context: context,
-            builder: (context) => Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CupertinoActionSheet(
-                  actions: [
-                    CupertinoActionSheetAction(
-                        onPressed: ()  {
-
-                        },
-                        child: Text(
-                          "Choose From Gallery",
-                          style: TextStyle(color: ClrConstant.primaryColor),
-                        )),
-                    CupertinoActionSheetAction(
-                        onPressed: () {
-
-                        },
-                        child: Text(
-                          "Camera",
-                          style: TextStyle(color: ClrConstant.primaryColor),
-                        )),
-                    CupertinoActionSheetAction(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(color: ClrConstant.primaryColor),
-                        ))
-                  ],
-                ),
-              ],
-            ),
-          );
-          setState(() {});
-        },
-        child: Icon(
+        onPressed: _pickImage,
+        child: const Icon(
           Icons.add_a_photo,
-          color: ClrConstant.whiteColor,
+          color: Colors.white,
         ),
       ),
     );

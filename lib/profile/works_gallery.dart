@@ -1,26 +1,47 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
+import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
+
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
 
-
 class WorksGallery extends StatefulWidget {
-  const WorksGallery({super.key});
+  final String userId;
+  const WorksGallery({super.key, required this.userId});
 
   @override
   State<WorksGallery> createState() => _WorksGalleryState();
 }
 
 class _WorksGalleryState extends State<WorksGallery> {
-  List<Post> allWorks = [
-    Post(img: ImgConstant.event1, likeCount: 0, description: "description1"),
-    Post(img: ImgConstant.event2, likeCount: 0, description: "description2"),
-    Post(img: ImgConstant.add1, likeCount: 0, description: "description3"),
-    Post(img: ImgConstant.add3, likeCount: 0, description: "description4"),
-    Post(img: ImgConstant.add2, likeCount: 0, description: "description5"),
-    Post(img: ImgConstant.trending1, likeCount: 0, description: "description6"),
-    Post(img: ImgConstant.trending2, likeCount: 0, description: "description7"),
-  ];
+  List<Post> allWorks = []; // Initialize as empty list
+
+  // Fetching works from Firestore
+  Future<void> fetchWorks() async {
+    try {
+      var userDoc = await FirebaseFirestore.instance.collection('users').doc(widget.userId).get(); // Use the correct user ID
+      if (userDoc.exists) {
+        var gallery = userDoc['gallery'] as List;
+        allWorks = gallery.map((postData) {
+          return Post(
+            img: postData['postUrl'], // Assuming 'img' is a URL or path
+            description: postData['description'],
+            likeCount: postData['likes'],
+          );
+        }).toList();
+      }
+      setState(() {}); // Refresh UI
+    } catch (e) {
+      print("Error fetching works: $e");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWorks(); // Fetch works when the widget is initialized
+  }
 
   int? _selectedPostIndex;
 
@@ -40,7 +61,9 @@ class _WorksGalleryState extends State<WorksGallery> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: allWorks.isEmpty
+          ? Center(child: CircularProgressIndicator()) // Show loading while fetching
+          : SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(width * 0.03),
           child: Column(
@@ -90,7 +113,7 @@ class _WorksGalleryState extends State<WorksGallery> {
                         ),
                         borderRadius: BorderRadius.circular(width * 0.03),
                         image: DecorationImage(
-                          image: AssetImage(allWorks[index].img),
+                          image: NetworkImage(allWorks[index].img), // Use NetworkImage for URLs
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -141,7 +164,7 @@ class _PostDetailsState extends State<PostDetails> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width * 0.03),
                 image: DecorationImage(
-                  image: AssetImage(widget.post.img),
+                  image: NetworkImage(widget.post.img), // Use NetworkImage for URLs
                   fit: BoxFit.fill,
                 ),
               ),
@@ -173,19 +196,14 @@ class _PostDetailsState extends State<PostDetails> {
                             child: Icon(widget.post.like
                                 ? Icons.favorite
                                 : Icons.favorite_outline_rounded)),
-
                         Container(
                           height: height*0.03,
                           width: width*0.05,
                           child: Center(child: Text(widget.post.likeCount.toString()),),
                         ),
-                        SizedBox(
-                          width: width * 0.05,
-                        ),
+                        SizedBox(width: width * 0.05),
                         Icon(Icons.share),
-                        SizedBox(
-                          width: width * 0.05,
-                        ),
+                        SizedBox(width: width * 0.05),
                         IconButton(
                           onPressed: (){
                             showDialog(
@@ -193,9 +211,9 @@ class _PostDetailsState extends State<PostDetails> {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   title: Text('Add Comment',style: TextStyle(
-                                    fontSize: 20,
-                                    color: ClrConstant.blackColor,
-                                    fontWeight: FontWeight.w700
+                                      fontSize: 20,
+                                      color: ClrConstant.blackColor,
+                                      fontWeight: FontWeight.w700
                                   ),),
                                   content: TextField(
                                     controller: _commentController,
@@ -213,7 +231,7 @@ class _PostDetailsState extends State<PostDetails> {
                                         borderSide: BorderSide(color: ClrConstant.primaryColor),
                                       ),
                                     ),
-                                    cursorColor: ClrConstant.primaryColor, // Change cursor color
+                                    cursorColor: ClrConstant.primaryColor,
                                   ),
                                   actions: <Widget>[
                                     TextButton(
@@ -227,7 +245,6 @@ class _PostDetailsState extends State<PostDetails> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        // Submit the comment
                                         widget.onSubmitComment(_commentController.text);
                                         _commentController.clear();
                                         Navigator.of(context).pop();
@@ -271,7 +288,6 @@ class _PostDetailsState extends State<PostDetails> {
   }
 }
 
-
 class Post {
   String img;
   String description;
@@ -284,4 +300,3 @@ class Post {
     likeCount++;
   }
 }
-

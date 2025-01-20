@@ -24,23 +24,23 @@ class _LoginState extends State<Login> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // void handleGoogleSignIn(BuildContext context) async {
-  //   try {
-  //     User? user = await SigninWithGoogle(context);
-  //     if (user != null) {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => BottomNavigationPage()),
-  //       );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text("Google Sign-In failed or was canceled.")),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print("Error during Google Sign-In: $e");
-  //   }
-  // }
+  void handleGoogleSignIn(BuildContext context) async {
+    try {
+      User? user = await signInWithGoogle(context);
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNavigationPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google Sign-In failed or was canceled.")),
+        );
+      }
+    } catch (e) {
+      print("Error during Google Sign-In: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +219,7 @@ class _LoginState extends State<Login> {
                       Column(
                         children: [
                           GestureDetector(
-                            // onTap: () => handleGoogleSignIn(context),
+                            onTap: () => handleGoogleSignIn(context),
                             child: Container(
                               height: height*0.05,
                               width: width*0.5,
@@ -245,37 +245,37 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                           SizedBox(height: height*0.015,),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => OtpSignin(),));
-                              setState(() {
-
-                              });
-                            },
-                            child: Container(
-                              height: height*0.05,
-                              width: width*0.5,
-                              decoration: BoxDecoration(
-                                color: ClrConstant.primaryColor.withOpacity(0.75),
-                                borderRadius: BorderRadius.circular(width*0.05),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.phone,color: ClrConstant.blackColor,),
-                                    Text("Sign in with phone",
-                                      style: TextStyle(
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w700
-                                      ),
-                                    ),
-                                    SizedBox()
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
+                          // GestureDetector(
+                          //   onTap: () {
+                          //     Navigator.push(context, MaterialPageRoute(builder: (context) => OtpSignin(),));
+                          //     setState(() {
+                          //
+                          //     });
+                          //   },
+                          //   child: Container(
+                          //     height: height*0.05,
+                          //     width: width*0.5,
+                          //     decoration: BoxDecoration(
+                          //       color: ClrConstant.primaryColor.withOpacity(0.75),
+                          //       borderRadius: BorderRadius.circular(width*0.05),
+                          //     ),
+                          //     child: Center(
+                          //       child: Row(
+                          //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          //         children: [
+                          //           Icon(Icons.phone,color: ClrConstant.blackColor,),
+                          //           Text("Sign in with phone",
+                          //             style: TextStyle(
+                          //               color: ClrConstant.blackColor,
+                          //               fontWeight: FontWeight.w700
+                          //             ),
+                          //           ),
+                          //           SizedBox()
+                          //         ],
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
 
