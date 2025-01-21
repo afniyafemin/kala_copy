@@ -68,7 +68,7 @@ class _ProfileState extends State<Profile> {
           });
         } else {
           await userRef.update({
-            'followers': FieldValue.arrayUnion([currentUser .uid]),
+            'followers': FieldValue.arrayUnion([currentUser.uid]),
           });
           await currentUserRef.update({
             'following': FieldValue.arrayUnion([widget.user.uid]),

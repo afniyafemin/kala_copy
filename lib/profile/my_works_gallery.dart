@@ -154,6 +154,7 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                 // Comments Section
                 ListView.builder(
                   shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemCount: (item["comments"] as List<dynamic>).length,
                   itemBuilder: (context, index) {
                     return ListTile(

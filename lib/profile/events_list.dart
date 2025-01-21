@@ -107,17 +107,17 @@ class _EventsGalleryState extends State<EventsGallery> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Container(
-                          height: height * 0.15,
-                          width: width * 0.25,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage(ImgConstant.event1), // Use a default image if none is provided
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(width * 0.05),
-                              bottomLeft: Radius.circular(width * 0.05),
+                        Padding(
+                          padding: EdgeInsets.all(5.0),
+                          child: Container(
+                            height: height * 0.15,
+                            width: width * 0.25,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(event['imageUrl'] ?? ImgConstant.event1), // Use a default image if none is provided
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius: BorderRadius.circular(width * 0.05)
                             ),
                           ),
                         ),
