@@ -200,7 +200,7 @@ class _CalendarviewAState extends State<CalendarView> {
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: descriptionController,
-                maxLength: 30,
+                maxLength: null,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   counterText: "",
@@ -214,7 +214,7 @@ class _CalendarviewAState extends State<CalendarView> {
               TextFormField(
                 cursorColor: ClrConstant.blackColor,
                 controller: locationController,
-                maxLength: 30,
+                maxLength: 60,
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   counterText: "",
