@@ -454,16 +454,20 @@ class _CalendarviewAState extends State<CalendarView> {
                                         color: ClrConstant.blackColor,
                                         fontWeight: FontWeight.w600),
                                   ),
-                                  Text(
-                                    event['description'] ?? 'No description',
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                        fontSize: width * 0.025,
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w600),
+                                  Container(
+                                    height: height*0.05,
+                                    width: width*0.45,
+                                    child: Text(
+                                      '''${event['description']}''' ?? 'No description',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: width * 0.025,
+                                          color: ClrConstant.blackColor.withOpacity(0.5),
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                   ),
                                   Text(
-                                    event['location'] ?? 'No location',
+                                    'Location : ${event['location']}' ?? 'No location',
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
                                         fontSize: width * 0.025,
