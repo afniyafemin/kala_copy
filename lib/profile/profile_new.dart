@@ -458,10 +458,10 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       Container(
-                        height: height * 0.15,
+                        height: height * 0.2,
                         width: width * 0.5,
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Row(
                               children: [
@@ -473,10 +473,15 @@ class _ProfileState extends State<Profile> {
                                 ),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Text(widget.user.description as String),
-                              ],
+                            Container(
+                              height: height*0.05,
+                              // width: width*0.75,
+                              child: Text('''${widget.user.description!}''',
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                  fontSize: width*0.0275
+                                ),
+                              ),
                             ),
                             Padding(
                               padding:  EdgeInsets.all(height*0.02),
