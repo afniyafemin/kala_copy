@@ -155,11 +155,19 @@ class _SlotBookingState extends State<SlotBooking> {
                     ],
                   ),
                   SizedBox(height: height * 0.02),
-                  Row(children: [Text("Date: $date")]),
+                  Row(children: [Text('''Date : $date''')]),
                   SizedBox(height: height * 0.01),
-                  Row(children: [Text("Description: $description")]),
+                  Container(
+                      height: height*0.4,
+                      width: width*0.45,
+                      child: Row(children: [Text('''Description: $description''')])
+                  ),
                   SizedBox(height: height * 0.01),
-                  Row(children: [Text("Location: $location")]),
+                  Container(
+                      height: height*0.4,
+                      width: width*0.45,
+                      child: Row(children: [Text('''Location: $location''')])
+                  ),
                 ],
               ),
               SizedBox(height: height * 0.03),

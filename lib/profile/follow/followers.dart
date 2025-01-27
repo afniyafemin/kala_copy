@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kala_copy/profile/profile_new.dart';
 import '../../constants/image_constant.dart';
 import '../../services/user_model.dart';
 
@@ -98,63 +99,65 @@ class _FollowersState extends State<Followers> {
           itemBuilder: (context, index) {
             final follower = _followers[index];
             return
-              ListTile(
+              GestureDetector(
+                onTap: () {
+                  setState(() {
 
-                leading: CircleAvatar(
-                  radius: width*0.075,
-                  backgroundImage: AssetImage(ImgConstant.dance_category1),
-                ),
+                  });
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(user: follower),));
+                },
+                child: ListTile(
 
-                title: Text(follower.username ?? '',style: TextStyle(
-                    fontWeight: FontWeight.w700
-                ),
-                ),
+                  leading: CircleAvatar(
+                    radius: width*0.075,
+                    backgroundImage: AssetImage(ImgConstant.dance_category1),
+                  ),
 
-                subtitle: Text("1901 Thornidge Cir.Shiloh, Hawaii",style: TextStyle(
-                  fontWeight: FontWeight.w300,
-                  // font:roboto
-                ),
-                ),
+                  title: Text(follower.username ?? '',style: TextStyle(
+                      fontWeight: FontWeight.w700
+                  ),
+                  ),
 
-                trailing: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text("do you want to delete?",
-                                style: TextStyle(
-                                  fontSize: width*0.04
+                  trailing: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("do you want to delete?",
+                                  style: TextStyle(
+                                    fontSize: width*0.04
+                                  ),
                                 ),
-                              ),
-                              actions: [
-                                GestureDetector(
-                                  onTap:() {
-                                    _deleteFollower(follower.uid);
-                                    Navigator.pop(context);
-                            } ,
-                            child: Text("delete",
-                                      style: TextStyle(
-                                        color: Colors.red
-                                      ),
-                                    )
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
+                                actions: [
+                                  GestureDetector(
+                                    onTap:() {
+                                      _deleteFollower(follower.uid);
                                       Navigator.pop(context);
-                                    });
-                                  },
-                                    child: Text("cancel")
-                                ),
-                              ],
-                            );
-                          },
-                      );
-                    });
-                  },
-                    child: Icon(Icons.delete,color: Colors.red.withOpacity(0.75),)
+                              } ,
+                              child: Text("delete",
+                                        style: TextStyle(
+                                          color: Colors.red
+                                        ),
+                                      )
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        Navigator.pop(context);
+                                      });
+                                    },
+                                      child: Text("cancel")
+                                  ),
+                                ],
+                              );
+                            },
+                        );
+                      });
+                    },
+                      child: Icon(Icons.delete,color: Colors.red.withOpacity(0.75),)
+                  ),
                 ),
               );
           },

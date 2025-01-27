@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:kala_copy/screens/slot_booking.dart';
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
+import 'calendar_view_1.dart';
 
 class AllUpcomingEvents extends StatefulWidget {
   const AllUpcomingEvents({super.key});
@@ -119,32 +120,44 @@ class _AllUpcomingEventsState extends State<AllUpcomingEvents> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text(
-                            event["title"] ?? 'No Title',
-                            style: TextStyle(
-                              fontSize: width * 0.04,
-                              color: ClrConstant.blackColor,
-                              fontWeight: FontWeight.w600,
+                          Container(
+                            height : height*0.04,
+                            width : width*0.45,
+                            child: Text(
+                              '''${event["title"] ?? 'No Title'}''',
+                              style: TextStyle(
+                                fontSize: width * 0.04,
+                                color: ClrConstant.blackColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
                           ),
-                          Text(
-                            event["description"] ?? 'No Description',
-                            style: TextStyle(
-                              fontSize: width * 0.03,
-                              color: ClrConstant.blackColor,
-                              fontWeight: FontWeight.w500,
+                          Container(
+                            height : height*0.05,
+                            width : width*0.45,
+                            child: Text(
+                              '''${event["description"] ?? 'No Description'}''',
+                              style: TextStyle(
+                                fontSize: width * 0.03,
+                                color: ClrConstant.blackColor.withOpacity(0.4),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
                           ),
-                          Text(
-                            event["location"] ?? 'No Location',
-                            style: TextStyle(
-                              fontSize: width * 0.03,
-                              color: ClrConstant.blackColor,
-                              fontWeight: FontWeight.w500,
+                          Container(
+                            height : height*0.03,
+                            width : width*0.45,
+                            child: Text(
+                              '''Location : ${event["location"] ?? 'No Location'}''',
+                              style: TextStyle(
+                                fontSize: width * 0.03,
+                                color: ClrConstant.blackColor,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                           Text(
@@ -155,7 +168,8 @@ class _AllUpcomingEventsState extends State<AllUpcomingEvents> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          // Book Now Button
+
+                          event['userId'] == FirebaseAuth.instance.currentUser!.uid ?
                           GestureDetector(
                             onTap: () {
                               String? eventId = event['id'];
@@ -187,6 +201,32 @@ class _AllUpcomingEventsState extends State<AllUpcomingEvents> {
                                   style: TextStyle(
                                     fontSize: width * 0.035,
                                     color: ClrConstant.whiteColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ):
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+
+                              });
+                              deleteEvent(event['id']);
+                            },
+                            child: Container(
+                              height: height * 0.03,
+                              width: width * 0.2,
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.75),
+                                borderRadius:
+                                BorderRadius.circular(width * 0.5),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  "delete",
+                                  style: TextStyle(
+                                    fontSize: width * 0.03,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),

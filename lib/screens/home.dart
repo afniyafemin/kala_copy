@@ -33,11 +33,53 @@ class _HomePageState extends State<HomePage> {
     fetchTopArtists(); // Fetch top artists on initialization
   }
 
+  // Future<List<Map<String, dynamic>>> fetchGalleryPosts() async {
+  //   List<Map<String, dynamic>> galleryPosts = [];
+  //   try {
+  //     final querySnapshot =
+  //     await FirebaseFirestore.instance.collection('users').get();
+  //
+  //     for (var doc in querySnapshot.docs) {
+  //       final data = doc.data();
+  //       if (data.containsKey('gallery')) {
+  //         List<dynamic> gallery = data['gallery'];
+  //         for (var post in gallery) {
+  //           galleryPosts.add({
+  //             'username': data['username'],
+  //             'profileImageUrl': data['profileImageUrl'] ?? '',
+  //             'postUrl': post['postUrl'],
+  //             'description': post['description'],
+  //             'likes': post['likes'],
+  //             'comments': post['comments'] ?? [],
+  //             'likedBy': post['likedBy'] ?? [], // Track who liked the post
+  //           });
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print('Error fetching gallery posts: $e');
+  //   }
+  //   return galleryPosts;
+  // }
+
+  Future<UserModel> fetchUserById(String userId) async {
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (doc.exists) {
+        return UserModel.fromMap(doc.data() as Map<String, dynamic>);
+      } else {
+        throw Exception("User  not found");
+      }
+    } catch (e) {
+      print('Error fetching user by ID: $e');
+      throw e; // Rethrow the error
+    }
+  }
+
   Future<List<Map<String, dynamic>>> fetchGalleryPosts() async {
     List<Map<String, dynamic>> galleryPosts = [];
     try {
-      final querySnapshot =
-      await FirebaseFirestore.instance.collection('users').get();
+      final querySnapshot = await FirebaseFirestore.instance.collection('users').get();
 
       for (var doc in querySnapshot.docs) {
         final data = doc.data();
@@ -45,13 +87,14 @@ class _HomePageState extends State<HomePage> {
           List<dynamic> gallery = data['gallery'];
           for (var post in gallery) {
             galleryPosts.add({
+              'userId': doc.id, // Add user ID here
               'username': data['username'],
               'profileImageUrl': data['profileImageUrl'] ?? '',
               'postUrl': post['postUrl'],
               'description': post['description'],
               'likes': post['likes'],
               'comments': post['comments'] ?? [],
-              'likedBy': post['likedBy'] ?? [], // Track who liked the post
+              'likedBy': post['likedBy'] ?? [],
             });
           }
         }
@@ -61,7 +104,6 @@ class _HomePageState extends State<HomePage> {
     }
     return galleryPosts;
   }
-
 
   Future<List<UserModel>> fetchTopArtists() async {
     List<UserModel> topArtists = [];
@@ -456,24 +498,56 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     Navigator.push(
+                            //         context,
+                            //         MaterialPageRoute(
+                            //           builder: (context) => Profile(user: post['username']),
+                            //         ));
+                            //   },
+                            //   child: Row(
+                            //     children: [
+                            //       CircleAvatar(
+                            //         radius: width * 0.05,
+                            //         backgroundImage: post['profileImageUrl']
+                            //                 .isNotEmpty
+                            //             ? NetworkImage(post['profileImageUrl'])
+                            //             : AssetImage(
+                            //                     'assets/default_profile.png')
+                            //                 as ImageProvider,
+                            //       ),
+                            //       SizedBox(width: width * 0.03),
+                            //       Text(
+                            //         post['username'] ?? 'Unknown User',
+                            //         style: TextStyle(
+                            //           fontWeight: FontWeight.w600,
+                            //           fontSize: width * 0.04,
+                            //         ),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
+
                             GestureDetector(
-                              onTap: () {
+                              onTap: () async {
+                                // Fetch the user data based on userId
+                                final userId = post['userId'];
+                                UserModel user = await fetchUserById(userId); // Create this method to fetch user data
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Profile(user: post['username']),
-                                    ));
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Profile(user: user),
+                                  ),
+                                );
                               },
                               child: Row(
                                 children: [
                                   CircleAvatar(
                                     radius: width * 0.05,
-                                    backgroundImage: post['profileImageUrl']
-                                            .isNotEmpty
+                                    backgroundImage: post['profileImageUrl'].isNotEmpty
                                         ? NetworkImage(post['profileImageUrl'])
-                                        : AssetImage(
-                                                'assets/default_profile.png')
-                                            as ImageProvider,
+                                        : AssetImage('assets/default_profile.png') as ImageProvider,
                                   ),
                                   SizedBox(width: width * 0.03),
                                   Text(
@@ -486,6 +560,7 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
+
                             SizedBox(height: width * 0.03),
                             Container(
                               height: height * 0.3,

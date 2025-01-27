@@ -19,6 +19,20 @@ class CalendarView extends StatefulWidget {
 }
 
 String? dateOfEvent;
+Future<void> deleteEvent(String eventId) async {
+  try {
+    // Reference to the events collection
+    CollectionReference eventsCollection = FirebaseFirestore.instance.collection('events');
+
+    // Delete the event document with the specified eventId
+    await eventsCollection.doc(eventId).delete();
+
+    print("Event with ID $eventId deleted successfully.");
+  } catch (e) {
+    print("Error deleting event: $e");
+    throw e; // Rethrow the error if needed
+  }
+}
 
 class _CalendarviewAState extends State<CalendarView> {
   CalendarFormat calendarFormat = CalendarFormat.month;
@@ -66,28 +80,30 @@ class _CalendarviewAState extends State<CalendarView> {
     return events[formattedDate] ?? [];
   }
 
-  Future<void> _fetchEventsForDate(String formattedDate) async {
-    final userUid = FirebaseAuth.instance.currentUser?.uid;
-    if (userUid != null) {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('events')
-          .where('userId', isEqualTo: userUid)
-          .where('date', isEqualTo: formattedDate)
-          .get();
 
-      setState(() {
-        events = {
-          formattedDate: querySnapshot.docs.map(
-            (doc) {
-              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-              data['id'] = doc.id;
-              return data;
-            },
-          ).toList(),
-        };
-      });
-    }
-  }
+
+  // Future<void> _fetchEventsForDate(String formattedDate) async {
+  //   final userUid = FirebaseAuth.instance.currentUser?.uid;
+  //   if (userUid != null) {
+  //     final querySnapshot = await FirebaseFirestore.instance
+  //         .collection('events')
+  //         .where('userId', isEqualTo: userUid)
+  //         .where('date', isEqualTo: formattedDate)
+  //         .get();
+  //
+  //     setState(() {
+  //       events = {
+  //         formattedDate: querySnapshot.docs.map(
+  //           (doc) {
+  //             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //             data['id'] = doc.id;
+  //             return data;
+  //           },
+  //         ).toList(),
+  //       };
+  //     });
+  //   }
+  // }
 
   // Future<void> _fetchEventsForDate(String formattedDate) async {
   //   final userUid = FirebaseAuth.instance.currentUser ?.uid;
@@ -125,7 +141,7 @@ class _CalendarviewAState extends State<CalendarView> {
   //   final userUid = FirebaseAuth.instance.currentUser?.uid;
   //
   //   if (userUid != null) {
-  //     final eventDoc = FirebaseFirestore.instance.collection('events').doc();
+  //     final eventDoc = FirebaseFirestore.instance.collection('evspaceEvenlyents').doc();
   //     final eventId = eventDoc.id; // Generate a unique ID for the event.
   //
   //     await eventDoc.set({
@@ -143,6 +159,7 @@ class _CalendarviewAState extends State<CalendarView> {
   //         const SnackBar(content: Text('User not logged in')));
   //   }
   // }
+
   void addEvent(BuildContext context, String userId) async {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
@@ -188,7 +205,7 @@ class _CalendarviewAState extends State<CalendarView> {
                 controller: titleController,
                 maxLength: 30,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   counterText: "",
                   hintText: "Event title",
                   border: OutlineInputBorder(),
@@ -447,12 +464,16 @@ class _CalendarviewAState extends State<CalendarView> {
                                     MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    event['title'] ?? 'No title',
-                                    style: TextStyle(
-                                        fontSize: width * 0.025,
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w600),
+                                  Container(
+                                    height: height*0.04,
+                                    width: width*0.45,
+                                    child: Text(
+                                      '''${event['title'] ?? 'No title'}''',
+                                      style: TextStyle(
+                                          fontSize: width * 0.025,
+                                          color: ClrConstant.blackColor,
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                   ),
                                   Container(
                                     height: height*0.05,
@@ -466,21 +487,29 @@ class _CalendarviewAState extends State<CalendarView> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                   ),
-                                  Text(
-                                    'Location : ${event['location']}' ?? 'No location',
-                                    textAlign: TextAlign.start,
-                                    style: TextStyle(
-                                        fontSize: width * 0.025,
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w600),
+                                  Container(
+                                    height: height*0.03,
+                                    width: width*0.45,
+                                    child: Text(
+                                      '''Location : ${event['location']}''' ?? 'No location',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          fontSize: width * 0.025,
+                                          color: ClrConstant.blackColor,
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                   ),
 
-                                  Text(
-                                    "Event holder: ${event['username'] ?? 'Unknown'}",
-                                    style: TextStyle(
-                                        fontSize: width * 0.025,
-                                        color: ClrConstant.blackColor,
-                                        fontWeight: FontWeight.w600),
+                                  Container(
+                                    height: height*0.03,
+                                    width: width*0.45,
+                                    child: Text(
+                                      "Event holder: ${event['username'] ?? 'Unknown'}",
+                                      style: TextStyle(
+                                          fontSize: width * 0.025,
+                                          color: ClrConstant.blackColor,
+                                          fontWeight: FontWeight.w600),
+                                    ),
                                   ),
 
                                   // Text(
@@ -496,11 +525,12 @@ class _CalendarviewAState extends State<CalendarView> {
                                     height: height * 0.05,
                                   ),
 
+                                  event['userId'] == FirebaseAuth.instance.currentUser!.uid ?
                                   InkWell(
                                     onTap: () async {
                                       print("id : ${event['id']}");
 
-                                      String eventId = event['id'] ?? 'id1';
+                                      // String eventId = event['id'] ?? 'id1';
 
                                       dateOfEvent = DateFormat('yyyy-MM-dd')
                                           .format(_selectedDay!);
@@ -529,6 +559,32 @@ class _CalendarviewAState extends State<CalendarView> {
                                       child: Center(
                                         child: Text(
                                           "Book Now",
+                                          style: TextStyle(
+                                            fontSize: width * 0.03,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ):
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+
+                                      });
+                                      deleteEvent(event['id']);
+                                    },
+                                    child: Container(
+                                      height: height * 0.03,
+                                      width: width * 0.2,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.withOpacity(0.75),
+                                        borderRadius:
+                                        BorderRadius.circular(width * 0.5),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "delete",
                                           style: TextStyle(
                                             fontSize: width * 0.03,
                                             fontWeight: FontWeight.w600,
