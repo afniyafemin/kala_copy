@@ -142,14 +142,26 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
 
                 // Description
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    item["description"] ?? "No description",
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  padding: EdgeInsets.all(width*0.03),
+                  child: Container(
+                    height: height*0.05,
+                    width: width*0.9,
+                    child: Text(
+                      '''description :${item["description"]}'''?? "No description",
+                      style: TextStyle(
+                          fontSize: width*0.03,
+                          fontWeight: FontWeight.w500
+                      ),
+                    ),
                   ),
                 ),
 
-                const Divider(),
+                Text("Comments",
+                  style: TextStyle(
+                    color: ClrConstant.blackColor.withOpacity(0.65),
+                    fontWeight: FontWeight.w800
+                  ),
+                ),
 
                 // Comments Section
                 ListView.builder(
@@ -157,14 +169,14 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: (item["comments"] as List<dynamic>).length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: const Icon(Icons.comment),
-                      title: Text(item["comments"][index]),
+                    return  Padding(
+                      padding: EdgeInsets.all(width*0.01),
+                      child: Text(item["comments"][index]
+                      ),
                     );
                   },
                 ),
 
-                const Divider(),
 
                 // Likes and Edit Button
                 Row(

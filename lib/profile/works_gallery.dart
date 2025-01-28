@@ -18,14 +18,15 @@ class _WorksGalleryState extends State<WorksGallery> {
           .doc(widget.userId)
           .get();
 
-      if (userDoc.exists) {
-        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
+      if (userDoc.exists && userDoc.data() != null) {
+        var gallery = List<Map<String, dynamic>>.from(userDoc.data()?['gallery'] ?? []);
         return gallery
             .map((postData) => Post(
-          img: postData['postUrl'],
-          description: postData['description'],
-          likes: postData['likes'],
+          img: postData['postUrl'] ?? '',
+          description: postData['description'] ?? '',
+          likes: postData['likes'] ?? 0,
           comments: List<dynamic>.from(postData['comments'] ?? []),
+          isLiked: postData['isLiked'] ?? false,
         ))
             .toList();
       }
@@ -35,84 +36,15 @@ class _WorksGalleryState extends State<WorksGallery> {
     return [];
   }
 
-  Future<void> updateLikes(int index, bool isLiked, List<Post> posts) async {
-    try {
-      var userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userId)
-          .get();
-
-      if (userDoc.exists) {
-        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
-
-        if (index >= 0 && index < gallery.length) {
-          gallery[index]['likes'] += isLiked ? -1 : 1;
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.userId)
-              .update({'gallery': gallery});
-          setState(() {
-            posts[index].likes = gallery[index]['likes'];
-            posts[index].isLiked = !isLiked;
-          });
-        }
-      }
-    } catch (e) {
-      print("Error updating likes: $e");
-    }
-  }
-
-  Future<List<dynamic>> fetchComments(String postUrl) async {
-    try {
-      var userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userId)
-          .get();
-
-      if (userDoc.exists) {
-        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
-        var post = gallery.firstWhere((p) => p['postUrl'] == postUrl);
-        return post['comments'] ?? [];
-      }
-    } catch (e) {
-      print("Error fetching comments: $e");
-    }
-    return [];
-  }
-
-  Future<void> addComment(String postUrl, String comment) async {
-    try {
-      var userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.userId)
-          .get();
-
-      if (userDoc.exists) {
-        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
-        int index = gallery.indexWhere((p) => p['postUrl'] == postUrl);
-
-        if (index != -1) {
-          gallery[index]['comments'].add(comment);
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.userId)
-              .update({'gallery': gallery});
-        }
-      }
-    } catch (e) {
-      print("Error adding comment: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
         backgroundColor: ClrConstant.primaryColor,
-        title: const Text("Works Gallery"),
+        title: Text("Gallery"),
       ),
       body: FutureBuilder<List<Post>>(
         future: fetchWorks(),
@@ -127,44 +59,40 @@ class _WorksGalleryState extends State<WorksGallery> {
 
           final posts = snapshot.data!;
 
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(width * 0.03),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: posts.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: width * 0.03,
-                crossAxisSpacing: width * 0.03,
-                childAspectRatio: 1,
-              ),
-              itemBuilder: (context, index) {
-                final post = posts[index];
-                return GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (_) => PostDetails(
+          return GridView.builder(
+            padding: EdgeInsets.all(screenWidth * 0.03),
+            itemCount: posts.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: screenWidth > 600 ? 4 : 3,
+              mainAxisSpacing: screenWidth * 0.03,
+              crossAxisSpacing: screenWidth * 0.03,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PostDetailsPage(
                         post: post,
-                        onLikeToggle: () => updateLikes(index, post.isLiked, posts),
-                        onAddComment: (comment) => addComment(post.img, comment),
-                        fetchComments: () => fetchComments(post.img),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(width * 0.03),
-                      image: DecorationImage(
-                        image: NetworkImage(post.img),
-                        fit: BoxFit.cover,
+                        userId: widget.userId,
                       ),
                     ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
+                    image: DecorationImage(
+                      image: NetworkImage(post.img),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           );
         },
       ),
@@ -172,111 +100,201 @@ class _WorksGalleryState extends State<WorksGallery> {
   }
 }
 
-class PostDetails extends StatefulWidget {
+class PostDetailsPage extends StatefulWidget {
   final Post post;
-  final VoidCallback onLikeToggle;
-  final Future<void> Function(String) onAddComment;
-  final Future<List<dynamic>> Function() fetchComments;
+  final String userId;
 
-  const PostDetails({
+  const PostDetailsPage({
     required this.post,
-    required this.onLikeToggle,
-    required this.onAddComment,
-    required this.fetchComments,
+    required this.userId,
     super.key,
   });
 
   @override
-  State<PostDetails> createState() => _PostDetailsState();
+  State<PostDetailsPage> createState() => _PostDetailsPageState();
 }
 
-class _PostDetailsState extends State<PostDetails> {
+class _PostDetailsPageState extends State<PostDetailsPage> {
   final TextEditingController _commentController = TextEditingController();
-  List<dynamic> comments = [];
+  late List<dynamic> comments;
 
   @override
   void initState() {
     super.initState();
-    _loadComments();
+    comments = widget.post.comments;
   }
 
-  Future<void> _loadComments() async {
-    comments = await widget.fetchComments();
-    setState(() {});
+  Future<void> toggleLike() async {
+    setState(() {
+      widget.post.isLiked = !widget.post.isLiked;
+      widget.post.likes += widget.post.isLiked ? 1 : -1;
+    });
+
+    try {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .get();
+
+      if (userDoc.exists) {
+        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
+        int index = gallery.indexWhere((p) => p['postUrl'] == widget.post.img);
+
+        if (index != -1) {
+          gallery[index]['likes'] = widget.post.likes;
+          gallery[index]['isLiked'] = widget.post.isLiked;
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.userId)
+              .update({'gallery': gallery});
+        }
+      }
+    } catch (e) {
+      print("Error updating likes: $e");
+    }
+  }
+
+  Future<void> addComment(String comment) async {
+    if (comment.trim().isEmpty) return;
+
+    try {
+      var userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.userId)
+          .get();
+
+      if (userDoc.exists) {
+        var gallery = List<Map<String, dynamic>>.from(userDoc['gallery']);
+        int index = gallery.indexWhere((p) => p['postUrl'] == widget.post.img);
+
+        if (index != -1) {
+          gallery[index]['comments'] = List<dynamic>.from(gallery[index]['comments'] ?? [])
+            ..add(comment);
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.userId)
+              .update({'gallery': gallery});
+          setState(() {
+            comments.add(comment);
+          });
+        }
+      }
+    } catch (e) {
+      print("Error adding comment: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
-    return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(width * 0.05),
+    return Scaffold(
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: ClrConstant.whiteColor),
+        backgroundColor: ClrConstant.primaryColor,
+        title: Text("Post Details",
+          style: TextStyle(
+            color: ClrConstant.whiteColor,
+            fontWeight: FontWeight.w700
+          ),
+        ),
       ),
-      child: Padding(
+      body: Padding(
         padding: EdgeInsets.all(width * 0.03),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
           children: [
             Container(
-              height: 200,
+              height: height * 0.4,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(width * 0.03),
+                borderRadius: BorderRadius.circular(16),
                 image: DecorationImage(
                   image: NetworkImage(widget.post.img),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
-            SizedBox(height: 16),
-            Text(widget.post.description),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
+            Text(
+              "Description: ${widget.post.description}",
+              style: TextStyle(fontSize: width * 0.04),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        widget.post.isLiked
-                            ? Icons.favorite
-                            : Icons.favorite_border,
-                        color: Colors.red,
-                      ),
-                      onPressed: widget.onLikeToggle,
-                    ),
-                    Text(widget.post.likes.toString()),
-                  ],
+                IconButton(
+                  icon: Icon(
+                    widget.post.isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: widget.post.isLiked ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: toggleLike,
                 ),
+                Text('${widget.post.likes}'),
               ],
             ),
-            SizedBox(height: 16),
-            Expanded(
+            const Divider(),
+            Text(
+              "Comments",
+              style: TextStyle(
+                color: ClrConstant.blackColor.withOpacity(0.75),
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            comments.isEmpty
+                ? Text(
+              "No comments yet.",
+              style: TextStyle(
+                color: ClrConstant.blackColor.withOpacity(0.4),
+                fontWeight: FontWeight.w700,
+              ),
+            )
+                : Container(
+              height: height * 0.2,
               child: ListView.builder(
                 itemCount: comments.length,
                 itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(comments[index]),
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4),
+                    child: Text(
+                      comments[index],
+                      style: TextStyle(
+                          color: ClrConstant.primaryColor,
+                        fontSize: width*0.04
+                      ),
+                    ),
                   );
                 },
               ),
             ),
-            TextField(
+            const SizedBox(height: 16),
+            TextFormField(
+              cursorColor: ClrConstant.primaryColor,
               controller: _commentController,
               decoration: InputDecoration(
-                hintText: 'Add a comment...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Colors.grey),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(width * 0.05),
+                    borderSide: BorderSide(
+                        color: ClrConstant.primaryColor,
+                      width: width*0.0075
+                    )
                 ),
-                filled: true,
-                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(width * 0.05),
+                  borderSide: BorderSide(
+                    color: ClrConstant.primaryColor,
+                      width: width*0.0075
+                  )
+                ),
+                hintText: 'Add a comment...',
+                hintStyle: TextStyle(
+                  color: ClrConstant.blackColor.withOpacity(0.3),
+                  fontSize: width * 0.04,
+                ),
                 suffixIcon: IconButton(
                   icon: Icon(Icons.send, color: ClrConstant.primaryColor),
                   onPressed: () {
-                    widget.onAddComment(_commentController.text);
+                    addComment(_commentController.text.trim());
                     _commentController.clear();
-                    _loadComments();
                   },
                 ),
               ),
@@ -292,14 +310,14 @@ class Post {
   final String img;
   final String description;
   int likes;
-  bool isLiked;
   final List<dynamic> comments;
+  bool isLiked;
 
   Post({
     required this.img,
     required this.description,
     required this.likes,
-    this.isLiked = false,
     this.comments = const [],
+    this.isLiked = false,
   });
 }
