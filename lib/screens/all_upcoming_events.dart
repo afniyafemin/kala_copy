@@ -104,11 +104,11 @@ class _AllUpcomingEventsState extends State<AllUpcomingEvents> {
                     // Event Image
                     Container(
                       height: height * 0.25,
-                      width: width * 0.35,
+                      width: width * 0.3,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(width * 0.03),
                         image: DecorationImage(
-                          image: AssetImage(ImgConstant.event1),
+                          image: event['imageUrl']== null ? AssetImage( ImgConstant.event1) : NetworkImage(event['imageUrl'] ),
                           fit: BoxFit.cover,
                         ),
                       ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kala_copy/screens/slot_booking.dart';
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
 import '../main.dart';
@@ -37,8 +38,7 @@ class _BookedEventsState extends State<BookedEvents> {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchEventsByIds(
-      List<String> eventIds) async {
+  Future<List<Map<String, dynamic>>> fetchEventsByIds(List<String> eventIds) async {
     try {
       List<Map<String, dynamic>> events = [];
 
@@ -290,43 +290,54 @@ class _BookedEventsState extends State<BookedEvents> {
                               fontWeight: FontWeight.w600);
                         }
 
-                        return Card(
-                          color: ClrConstant.whiteColor,
-                          child: ListTile(
-                            leading: Container(
-                              width: width * 0.15,
-                              height: height * 0.15,
-                              decoration: BoxDecoration(
-                                color: ClrConstant.primaryColor,
-                                borderRadius:
-                                    BorderRadius.circular(width * 0.03),
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SlotBooking(eventId: event['documentId'], title: event['title'], location: event['location'], date: event['date'], description: event['description'], imageUrl: event['imageUrl']),));
+                            setState(() {
+
+                            });
+                          },
+                          child: Card(
+                            color: ClrConstant.whiteColor,
+                            child: ListTile(
+                              leading: Container(
+                                width: width * 0.15,
+                                height: height * 0.1,
+                                decoration: BoxDecoration(
+                                  color: ClrConstant.primaryColor.withOpacity(0.4),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.01),
+                                ),
+                                child: Image(
+                                  image:
+                                      event['imageUrl'] != null ? NetworkImage(event['imageUrl']) : AssetImage(ImgConstant.event1),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                              child: Image(
-                                image:
-                                    AssetImage(ImgConstant.instrumental_music),
-                                fit: BoxFit.cover,
+                              title: Text(
+                                event['title'] ?? "Untitled Event",
+                                style: textStyle,
                               ),
-                            ),
-                            title: Text(
-                              event['title'] ?? "Untitled Event",
-                              style: textStyle,
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Description: ${event['description'] ?? "No description"}",
-                                  style: textStyle,
-                                ),
-                                Text(
-                                  "Location: ${event['location'] ?? "No location"}",
-                                  style: textStyle,
-                                ),
-                                Text(
-                                  "Date: $eventDateStr",
-                                  style: textStyle,
-                                ),
-                              ],
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Description: ${event['description'] ?? "No description"}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: width*0.025
+                                    ),
+                                  ),
+                                  Text(
+                                    "Location: ${event['location'] ?? "No location"}",
+                                    style: textStyle,
+                                  ),
+                                  Text(
+                                    "Date: $eventDateStr",
+                                    style: textStyle,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         );

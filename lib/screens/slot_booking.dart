@@ -107,10 +107,17 @@ class _SlotBookingState extends State<SlotBooking> {
     return Scaffold(
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
-        backgroundColor: ClrConstant.whiteColor,
+        iconTheme: IconThemeData(
+          color: ClrConstant.whiteColor
+        ),
+        backgroundColor: ClrConstant.primaryColor,
         title: Text(
           "Booking Registration",
-          style: TextStyle(fontSize: width * 0.04),
+          style: TextStyle(
+              fontSize: width * 0.04,
+            fontWeight: FontWeight.w700,
+            color: ClrConstant.whiteColor
+          ),
         ),
         centerTitle: true,
       ),
@@ -129,7 +136,7 @@ class _SlotBookingState extends State<SlotBooking> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(width * 0.03),
                           image: DecorationImage(
-                            image: NetworkImage(widget.imageUrl), // Display the image from the URL
+                            image: widget.imageUrl == null ? AssetImage(ImgConstant.event1) : NetworkImage(widget.imageUrl), // Display the image from the URL
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -140,7 +147,7 @@ class _SlotBookingState extends State<SlotBooking> {
                         child: Text(
                           title.isNotEmpty ? title : 'Loading...',
                           style: TextStyle(
-                              color: ClrConstant.blackColor,
+                              color: ClrConstant.whiteColor,
                               shadows: [
                                 Shadow(
                                   color: ClrConstant.primaryColor,
@@ -157,16 +164,14 @@ class _SlotBookingState extends State<SlotBooking> {
                   SizedBox(height: height * 0.02),
                   Row(children: [Text('''Date : $date''')]),
                   SizedBox(height: height * 0.01),
-                  Container(
-                      height: height*0.4,
-                      width: width*0.45,
-                      child: Row(children: [Text('''Description: $description''')])
-                  ),
+                  Text('''Description: $description'''),
                   SizedBox(height: height * 0.01),
-                  Container(
-                      height: height*0.4,
-                      width: width*0.45,
-                      child: Row(children: [Text('''Location: $location''')])
+                  Text('''Location: $location''',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: width*0.03
+                    ),
                   ),
                 ],
               ),

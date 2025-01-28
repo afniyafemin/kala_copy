@@ -55,10 +55,16 @@ class _EventsGalleryState extends State<EventsGallery> {
     return Scaffold(
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: ClrConstant.whiteColor
+        ),
         backgroundColor: ClrConstant.primaryColor,
         title: Text(
           "Events",
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+            color: ClrConstant.whiteColor
+          ),
         ),
       ),
       body: events.isEmpty
@@ -99,7 +105,7 @@ class _EventsGalleryState extends State<EventsGallery> {
                 width: width * 0.85,
                 decoration: BoxDecoration(
                   color: ClrConstant.primaryColor,
-                  borderRadius: BorderRadius.circular(width * 0.05),
+                  borderRadius: BorderRadius.circular(width * 0.025),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,13 +117,13 @@ class _EventsGalleryState extends State<EventsGallery> {
                           padding: EdgeInsets.all(5.0),
                           child: Container(
                             height: height * 0.15,
-                            width: width * 0.25,
+                            width: width * 0.2,
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 image: NetworkImage(event['imageUrl'] ?? ImgConstant.event1), // Use a default image if none is provided
                                 fit: BoxFit.cover,
                               ),
-                              borderRadius: BorderRadius.circular(width * 0.05)
+                              borderRadius: BorderRadius.circular(width * 0.025)
                             ),
                           ),
                         ),
@@ -126,9 +132,24 @@ class _EventsGalleryState extends State<EventsGallery> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(event["title"] ?? 'No Title', style: TextStyle(fontWeight: FontWeight.bold)),
-                            Text(event["description"] ?? 'No Description'),
-                            Text(event["location"] ?? 'No Location'),
+                            // Container(
+                            //   height: height*0.1,
+                            //     width: width*0.55,
+                            //     child: Text('''${event["description"] ?? 'No Description'}''',
+                            //       style: TextStyle(
+                            //         fontSize: width*0.03
+                            //       ),
+                            //     )
+                            // ),
+                            Container(
+                              height: height*0.05,
+                                width: width*0.5,
+                                child: Text('''${event["title"] ?? 'No Title'}''' ),
+                            ),
+                            Container(
+                              height: height*0.05,
+                                width: width*0.5,
+                                child: Text('''Location : ${event["location"]}''' ?? 'No Location')),
                             Text(formattedDate), // Format date if it's a Timestamp
                           ],
                         ),
