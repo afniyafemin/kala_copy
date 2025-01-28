@@ -302,8 +302,8 @@ class _ProfileState extends State<Profile> {
     if (currentUser   != null) {
       try {
         await FirebaseFirestore.instance.collection('reports').add({
-          'reportedUser  Id': widget.user.uid,
-          'reporterUser  Id': currentUser .uid,
+          'reportedUserId': widget.user.uid,
+          'reporterUserId': currentUser .uid,
           'reason': reason,
           'timestamp': FieldValue.serverTimestamp(),
         });
