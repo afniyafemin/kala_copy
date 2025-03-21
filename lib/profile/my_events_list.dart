@@ -186,32 +186,32 @@ class _MyEventsListState extends State<MyEventsList> {
                               ),
                               Row(
                                 children: [
-                                  GestureDetector(
-                                    onTap : (){
-
-                                    },
-                                    child: Padding(
-                                      padding: EdgeInsets.all(width * 0.03),
-                                      child: Container(
-                                        height: height*0.03,
-                                          width: width*0.125,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(width*0.05),
-                                            color: ClrConstant.primaryColor,
-                                          ),
-
-                                          child: Center(child: Text("add",
-                                            style: TextStyle(
-                                                color: ClrConstant.whiteColor,
-                                                fontWeight: FontWeight.w600,
-                                              fontSize: width*0.03
-                                            ),
-                                          )
-                                          )
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: width*0.01,),
+                                  // GestureDetector(
+                                  //   onTap : (){
+                                  //
+                                  //   },
+                                  //   child: Padding(
+                                  //     padding: EdgeInsets.all(width * 0.03),
+                                  //     child: Container(
+                                  //       height: height*0.03,
+                                  //         width: width*0.125,
+                                  //         decoration: BoxDecoration(
+                                  //           borderRadius: BorderRadius.circular(width*0.05),
+                                  //           color: ClrConstant.primaryColor,
+                                  //         ),
+                                  //
+                                  //         child: Center(child: Text("add",
+                                  //           style: TextStyle(
+                                  //               color: ClrConstant.whiteColor,
+                                  //               fontWeight: FontWeight.w600,
+                                  //             fontSize: width*0.03
+                                  //           ),
+                                  //         )
+                                  //         )
+                                  //     ),
+                                  //   ),
+                                  // ),
+                                  // SizedBox(width: width*0.01,),
                                   GestureDetector(
                                     onTap: () {
                                       showDialog(

@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kala_copy/auth/auth_page.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../bottom_navigation_bar/bottom_navigation.dart';
 import '../constants/color_constant.dart';
@@ -73,7 +74,7 @@ class _AddPageState extends State<AddPage> {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNavigationPage(),));
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AuthPage(),));
                     setState(() {
 
                     });

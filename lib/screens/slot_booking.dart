@@ -136,7 +136,7 @@ class _SlotBookingState extends State<SlotBooking> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(width * 0.03),
                           image: DecorationImage(
-                            image: widget.imageUrl == null ? AssetImage(ImgConstant.event1) : NetworkImage(widget.imageUrl), // Display the image from the URL
+                            image: widget.imageUrl == null ? AssetImage(ImgConstant.dance_category3) : NetworkImage(widget.imageUrl), // Display the image from the URL
                             fit: BoxFit.cover,
                           ),
                         ),

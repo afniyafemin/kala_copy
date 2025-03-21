@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../bottom_navigation_bar/bottom_navigation.dart';
@@ -29,11 +30,12 @@ class _SignupState extends State<Signup> {
 
   // List of categories
   final List<String> categories = [
-    "Dancing",
+    "Dance Forms",
     "Instrumental Music",
-    "Malabar Arts",
-    "Martial and Ritual Arts",
-    "Western"
+    "Ritual & Temple Arts",
+    "Theatre & Story Telling",
+    "Martial Arts",
+    "Puppetry & Shadow Theatre",
   ];
 
   @override
@@ -58,174 +60,272 @@ class _SignupState extends State<Signup> {
                     SizedBox(),
                     Padding(
                       padding: EdgeInsets.all(width * 0.1),
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: nameController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
-                                fillColor:
-                                    ClrConstant.primaryColor.withOpacity(0.3),
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                labelText: "Username :",
-                                labelStyle:
-                                    TextStyle(color: ClrConstant.blackColor),
-                                suffixIcon: Icon(Icons.person)),
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          TextFormField(
-                            controller: emailController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
-                                fillColor:
-                                    ClrConstant.primaryColor.withOpacity(0.3),
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                labelText: "valid email :",
-                                labelStyle:
-                                    TextStyle(color: ClrConstant.blackColor),
-                                suffixIcon: Icon(Icons.mail)),
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          TextFormField(
-                            controller: passwordController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
-                                fillColor:
-                                    ClrConstant.primaryColor.withOpacity(0.3),
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                labelText: "password :",
-                                labelStyle:
-                                    TextStyle(color: ClrConstant.blackColor),
-                                suffixIcon: InkWell(
-                                    onTap: () {
-                                      pass = !pass;
-                                      setState(() {});
-                                    },
-                                    child: Icon(pass
-                                        ? Icons.visibility
-                                        : Icons.visibility_off)),
-                                counterText: ''),
-                            maxLength: 30,
-                            obscureText: pass ? true : false,
-                            obscuringCharacter: "*",
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          TextFormField(
-                            controller: confirmPasswordController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
-                                fillColor:
-                                    ClrConstant.primaryColor.withOpacity(0.3),
-                                filled: true,
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ClrConstant.primaryColor),
-                                    borderRadius:
-                                        BorderRadius.circular(width * 0.05)),
-                                labelText: "confirm password :",
-                                labelStyle:
-                                    TextStyle(color: ClrConstant.blackColor),
-                                suffixIcon: InkWell(
-                                    onTap: () {
-                                      pass = !pass;
-                                      setState(() {});
-                                    },
-                                    child: Icon(pass
-                                        ? Icons.visibility
-                                        : Icons.visibility_off)),
-                                counterText: ''),
-                            maxLength: 30,
-                            obscureText: pass ? true : false,
-                            obscuringCharacter: "*",
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          DropdownButtonFormField<String>(
-                            value: selectedCategory,
-                            hint: Text("Select Category"),
-                            items: categories.map((String category) {
-                              return DropdownMenuItem<String>(
-                                value: category,
-                                child: Text(category),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedCategory = newValue;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              fillColor:
-                                  ClrConstant.primaryColor.withOpacity(0.3),
-                              filled: true,
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: ClrConstant.primaryColor),
-                                borderRadius:
-                                    BorderRadius.circular(width * 0.05),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: ClrConstant.primaryColor),
-                                borderRadius:
-                                    BorderRadius.circular(width * 0.05),
-                              ),
+                      child: Form(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: nameController,
+                              autovalidateMode: AutovalidateMode.onUserInteraction,
+                              validator: (value) {
 
+                                Future<bool> isUsernameUnique(String username) async {
+                                  final QuerySnapshot result = await FirebaseFirestore.instance
+                                      .collection('users')
+                                      .where('username', isEqualTo: username.toLowerCase()) // Use lower case for case-insensitive check
+                                      .get();
+                                  return result.docs.isEmpty; // Returns true if username is unique
+                                }
+
+                                Future<String> validateUsername(String username) async {
+                                  // Length Check
+                                  if (username.length < 3 || username.length > 20) {
+                                    return "Username must be between 3 and 20 characters.";
+                                  }
+
+                                  // Character Restrictions
+                                  if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(username)) {
+                                    return "Username can only contain letters, numbers, and underscores.";
+                                  }
+
+                                  // Prohibited Usernames
+                                  List<String> prohibitedUsernames = ['admin', 'user', 'test'];
+                                  if (prohibitedUsernames.contains(username.toLowerCase())) {
+                                  return "This username is not allowed.";
+                                  }
+
+                                  // Check for uniqueness
+                                  bool isUnique = await isUsernameUnique(username);
+                                  if (!isUnique) {
+                                  return "Username is already taken.";
+                                  }
+
+                                  return "Username is available.";
+                                }
+                                return null;
+                              },
+                              cursorColor: ClrConstant.blackColor,
+                              decoration: InputDecoration(
+                                  fillColor:
+                                      ClrConstant.primaryColor.withOpacity(0.3),
+                                  filled: true,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  labelText: "Username :",
+                                  labelStyle:
+                                      TextStyle(color: ClrConstant.blackColor),
+                                  suffixIcon: Icon(Icons.person)),
                             ),
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          TextFormField(
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "phone number required";
-                              }
-                            },
-                            controller: phoneController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Email is required";
+                                }
+                                // Regular expression for validating email
+                                String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+                                RegExp regex = RegExp(pattern);
+                                if (!regex.hasMatch(value)) {
+                                  return "Enter a valid email address";
+                                }
+                                return null; // Return null if the input is valid
+                              },
+                              controller: emailController,
+                              cursorColor: ClrConstant.blackColor,
+                              decoration: InputDecoration(
+                                  fillColor:
+                                      ClrConstant.primaryColor.withOpacity(0.3),
+                                  filled: true,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  labelText: "valid email :",
+                                  labelStyle:
+                                      TextStyle(color: ClrConstant.blackColor),
+                                  suffixIcon: Icon(Icons.mail)),
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Password is required";
+                                } else if (value.length < 6) {
+                                  return "Password must be at least 6 characters long";
+                                }
+                                return null; // Return null if the input is valid
+                              },
+                              controller: passwordController,
+                              cursorColor: ClrConstant.blackColor,
+                              decoration: InputDecoration(
+                                  fillColor:
+                                      ClrConstant.primaryColor.withOpacity(0.3),
+                                  filled: true,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  labelText: "password :",
+                                  labelStyle:
+                                      TextStyle(color: ClrConstant.blackColor),
+                                  suffixIcon: InkWell(
+                                      onTap: () {
+                                        pass = !pass;
+                                        setState(() {});
+                                      },
+                                      child: Icon(pass
+                                          ? Icons.visibility
+                                          : Icons.visibility_off)),
+                                  counterText: ''),
+                              maxLength: 30,
+                              obscureText: pass ? true : false,
+                              obscuringCharacter: "*",
+                            ),
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            TextFormField(
+                              controller: confirmPasswordController,
+                              cursorColor: ClrConstant.blackColor,
+                              decoration: InputDecoration(
+                                  fillColor:
+                                      ClrConstant.primaryColor.withOpacity(0.3),
+                                  filled: true,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  labelText: "confirm password :",
+                                  labelStyle:
+                                      TextStyle(color: ClrConstant.blackColor),
+                                  suffixIcon: InkWell(
+                                      onTap: () {
+                                        pass = !pass;
+                                        setState(() {});
+                                      },
+                                      child: Icon(pass
+                                          ? Icons.visibility
+                                          : Icons.visibility_off)),
+                                  counterText: ''),
+                              maxLength: 30,
+                              obscureText: pass ? true : false,
+                              obscuringCharacter: "*",
+                            ),
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            DropdownButtonFormField<String>(
+                              value: selectedCategory,
+                              hint: Text("Select Category"),
+                              items: categories.map((String category) {
+                                return DropdownMenuItem<String>(
+                                  value: category,
+                                  child: Text(category),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedCategory = newValue;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                fillColor:
+                                    ClrConstant.primaryColor.withOpacity(0.3),
+                                filled: true,
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: ClrConstant.primaryColor),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.05),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: ClrConstant.primaryColor),
+                                  borderRadius:
+                                      BorderRadius.circular(width * 0.05),
+                                ),
+
+                              ),
+                            ),
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Phone number is required";
+                                } else if (value.length != 10) {
+                                  return "Phone number must be exactly 10 digits";
+                                }
+                                return null; // Return null if the input is valid
+                              },
+                              controller: phoneController,
+                              cursorColor: ClrConstant.blackColor,
+                              minLines: 1,
+
+                              decoration: InputDecoration(
+                                  fillColor:
+                                      ClrConstant.primaryColor.withOpacity(0.3),
+                                  filled: true,
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: ClrConstant.primaryColor),
+                                      borderRadius:
+                                          BorderRadius.circular(width * 0.05)),
+                                  labelText: "Phone no :",
+                                  labelStyle:
+                                      TextStyle(color: ClrConstant.blackColor),
+                                  suffixIcon: Icon(Icons.phone),
+                                  counterText: ""),
+                              keyboardType: TextInputType.phone,
+                              maxLength: 10,
+                            ),
+                            SizedBox(
+                              height: height * 0.015,
+                            ),
+                            TextFormField(
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "phone number required";
+                                }
+                              },
+                              controller: cityController,
+                              cursorColor: ClrConstant.blackColor,
+                              decoration: InputDecoration(
                                 fillColor:
                                     ClrConstant.primaryColor.withOpacity(0.3),
                                 filled: true,
@@ -239,46 +339,14 @@ class _SignupState extends State<Signup> {
                                         color: ClrConstant.primaryColor),
                                     borderRadius:
                                         BorderRadius.circular(width * 0.05)),
-                                labelText: "Phone no :",
+                                labelText: "City :",
                                 labelStyle:
                                     TextStyle(color: ClrConstant.blackColor),
-                                suffixIcon: Icon(Icons.phone),
-                                counterText: ""),
-                            keyboardType: TextInputType.phone,
-                            maxLength: 10,
-                          ),
-                          SizedBox(
-                            height: height * 0.015,
-                          ),
-                          TextFormField(
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "phone number required";
-                              }
-                            },
-                            controller: cityController,
-                            cursorColor: ClrConstant.blackColor,
-                            decoration: InputDecoration(
-                              fillColor:
-                                  ClrConstant.primaryColor.withOpacity(0.3),
-                              filled: true,
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: ClrConstant.primaryColor),
-                                  borderRadius:
-                                      BorderRadius.circular(width * 0.05)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: ClrConstant.primaryColor),
-                                  borderRadius:
-                                      BorderRadius.circular(width * 0.05)),
-                              labelText: "City :",
-                              labelStyle:
-                                  TextStyle(color: ClrConstant.blackColor),
-                              suffixIcon: Icon(Icons.location_on),
+                                suffixIcon: Icon(Icons.location_on),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     GestureDetector(

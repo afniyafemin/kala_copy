@@ -14,11 +14,30 @@ class CategoriesNew extends StatefulWidget {
 }
 
 List<Map> category = [
-  {"img": ImgConstant.dancing, "txt": "Dancing"},
-  {"img": ImgConstant.instrumental_music, "txt": "Instrumental Music"},
-  {"img": ImgConstant.malabar, "txt": "Malabar Arts"},
-  {"img": ImgConstant.martial, "txt": "Martial and Ritual Arts"},
-  {"img": ImgConstant.western, "txt": "Western"},
+  {"img": ImgConstant.dancing,
+    "txt": "Dance Forms",
+    "description" : "Classical & Folk Dances"
+  },
+  {"img": ImgConstant.instrumental_music,
+    "txt": "Instrumental Music",
+    "description" : "Percussion & Melodic Instruments"
+  },
+  {"img": ImgConstant.ritual,
+    "txt": "Ritual & Temple Arts",
+    "description" : "Spiritual & Religious Traditions"
+  },
+  {"img": ImgConstant.stry_telling,
+    "txt": "Theatre & Story Telling",
+    "description" : "Drama & Traditional Narratives"
+  },
+  {"img": ImgConstant.martial,
+    "txt": "Martial Arts",
+    "description" : "Martial Art Form"
+  },
+  {"img": ImgConstant.western,
+    "txt": "Puppetry & Shadow Theatre",
+    "description" : "Ramayana Shadow Puppetry , Glove Puppet Kathakali"
+  },
 ];
 
 String category_='';
@@ -92,11 +111,12 @@ class _CategoriesNewState extends State<CategoriesNew> {
                                                         style: TextStyle(
                                                             color: ClrConstant.blackColor,
                                                             fontWeight: FontWeight.w700,
-                                                            fontSize: width*0.04
+                                                            fontSize: width*0.035
                                                         ),
                                                       ),
-                                                      Text('''this is the dscription about the category''',
+                                                      Text(category[index]["description"],
                                                         style: TextStyle(
+                                                          fontSize: width*0.03,
                                                           color: ClrConstant.blackColor.withOpacity(0.4),
 
                                                         ),

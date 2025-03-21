@@ -132,26 +132,42 @@ class _EditProfileNewState extends State<EditProfileNew> {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoActionSheet(
-        title: Text("Select Image Source"),
+        title: Text("Select Image Source",
+          style: TextStyle(
+            color: ClrConstant.primaryColor
+          ),
+        ),
         actions: [
           CupertinoActionSheetAction(
             onPressed: () {
               _pickImage(ImageSource.gallery);
               Navigator.pop(context);
             },
-            child: Text("Choose From Gallery"),
+            child: Text("Choose From Gallery",
+              style: TextStyle(
+                  color: ClrConstant.blackColor
+              ),
+            ),
           ),
           CupertinoActionSheetAction(
             onPressed: () {
               _pickImage(ImageSource.camera);
               Navigator.pop(context);
             },
-            child: Text("Use Camera"),
+            child: Text("Use Camera",
+              style: TextStyle(
+                  color: ClrConstant.blackColor
+              ),
+            ),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           onPressed: () => Navigator.pop(context),
-          child: Text("Cancel"),
+          child: Text("Cancel",
+            style: TextStyle(
+                color: Colors.red
+            ),
+          ),
         ),
       ),
     );
@@ -165,10 +181,13 @@ class _EditProfileNewState extends State<EditProfileNew> {
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
         centerTitle: true,
+        iconTheme: IconThemeData(
+          color: ClrConstant.whiteColor
+        ),
         title: Text(
           "Edit Profile",
           style: TextStyle(
-              fontSize: width * 0.035,
+              fontSize: width * 0.04,
               fontWeight: FontWeight.w700,
             color: ClrConstant.whiteColor
           ),
@@ -183,14 +202,14 @@ class _EditProfileNewState extends State<EditProfileNew> {
             Stack(children: [
               CircleAvatar(
                 radius: width * 0.2,
-                backgroundColor: ClrConstant.primaryColor.withOpacity(0.4),
+                backgroundColor: ClrConstant.primaryColor.withOpacity(1),
                 child: CircleAvatar(
                   radius: width * 0.185,
                   backgroundImage: _imgFile != null
                       ? FileImage(_imgFile!)
                       : (_uploadedImageUrl != null
                       ? NetworkImage(_uploadedImageUrl!)
-                      : AssetImage(ImgConstant.dance_category1)) as ImageProvider,
+                      : AssetImage(ImgConstant.default_user)) as ImageProvider,
                 ),
               ),
               Positioned(
@@ -218,46 +237,102 @@ class _EditProfileNewState extends State<EditProfileNew> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: "Username",
+                      labelStyle: TextStyle(
+                        color: ClrConstant.blackColor
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05),
+                          borderSide: BorderSide(
+                              color: ClrConstant.blackColor
+                          )
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(width*0.05),
+                        borderSide: BorderSide(
+                          color: ClrConstant.primaryColor
+                        )
+                      ),
                       filled: true,
                       fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                      suffixIcon: Icon(Icons.person),
+                      suffixIcon: Icon(Icons.person,color: ClrConstant.primaryColor,),
                     ),
+                    cursorColor: ClrConstant.primaryColor,
                   ),
                   SizedBox(height: height * 0.015),
                   TextFormField(
                     controller: categoryController,
                     decoration: InputDecoration(
                       labelText: "Category",
+                      labelStyle: TextStyle(
+                          color: ClrConstant.blackColor
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05)
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05),
+                          borderSide: BorderSide(
+                              color: ClrConstant.blackColor
+                          )
+                      ),
                       filled: true,
                       fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                      suffixIcon: Icon(Icons.category),
+                      suffixIcon: Icon(Icons.category,color: ClrConstant.primaryColor,),
                     ),
+                    cursorColor: ClrConstant.primaryColor,
                   ),
                   SizedBox(height: height * 0.015),
                   TextFormField(
                     controller: cityController,
                     decoration: InputDecoration(
                       labelText: "City",
+                      labelStyle: TextStyle(
+                          color: ClrConstant.blackColor
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05),
+                          borderSide: BorderSide(
+                              color: ClrConstant.blackColor
+                          )
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05)
+                      ),
                       filled: true,
                       fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                      suffixIcon: Icon(Icons.location_on),
+                      suffixIcon: Icon(Icons.location_on,color: ClrConstant.primaryColor,),
                     ),
+                    cursorColor: ClrConstant.primaryColor,
                   ),
                   SizedBox(height: height * 0.015),
                   TextFormField(
                     controller: descriptionController,
                     decoration: InputDecoration(
                       labelText: "Description",
+                      labelStyle: TextStyle(
+                          color: ClrConstant.blackColor
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05),
+                          borderSide: BorderSide(
+                              color: ClrConstant.blackColor
+                          )
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(width*0.05)
+                      ),
                       filled: true,
                       fillColor: ClrConstant.primaryColor.withOpacity(0.4),
-                      suffixIcon: Icon(Icons.edit),
+                      suffixIcon: Icon(Icons.edit,color: ClrConstant.primaryColor,),
                     ),
+                    cursorColor: ClrConstant.primaryColor,
                   ),
                 ],
               ),
             ),
             SizedBox(height: height*0.05,),
             GestureDetector(
+
               // onTap: () async {
               //   // Check if required fields are empty
               //   if (nameController.text.trim().isEmpty ||
@@ -292,6 +367,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
               //     );
               //   }
               // },
+
               onTap: () async {
                 if (nameController.text.trim().isEmpty ||
                     categoryController.text.trim().isEmpty ||
@@ -336,6 +412,7 @@ class _EditProfileNewState extends State<EditProfileNew> {
                   child: Text(
                     "Save Changes",
                     style: TextStyle(
+                      color: ClrConstant.whiteColor,
                       fontWeight: FontWeight.w700,
                       fontSize: width * 0.03,
                     ),

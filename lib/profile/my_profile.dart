@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_stars/flutter_rating_stars.dart';
 import '../constants/color_constant.dart';
 import '../constants/image_constant.dart';
-import '../main.dart';
 import '../services/artist_rating_services.dart';
 import '../services/delete_account_method.dart';
 import '../services/fetch_user_data.dart';
@@ -59,7 +58,6 @@ class _MyProfileNewState extends State<MyProfileNew> {
   void initState() {
     super.initState();
     _fetchUserProfile();
-    _fetchAverageRating();
   }
 
   Future<void> _fetchUserProfile() async {
@@ -83,35 +81,12 @@ class _MyProfileNewState extends State<MyProfileNew> {
     }
   }
 
-  Future<void> _fetchAverageRating() async {
-    User? user = FirebaseAuth.instance.currentUser ;
-    if (user != null) {
-      try {
-        DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-
-        if (userDoc.exists) {
-          var data = userDoc.data() as Map<String, dynamic>;
-          List<dynamic> ratings = data['ratings'] ?? [];
-
-          if (ratings.isNotEmpty) {
-            double totalRating = 0.0;
-            for (var rating in ratings) {
-              totalRating += rating['rating'] ?? 0.0; // Assuming 'rating' is the field
-            }
-            setState(() {
-              _avgRating = totalRating / ratings.length; // Calculate average
-            });
-          }
-        }
-      } catch (e) {
-        print('Error fetching average rating: $e');
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: ClrConstant.whiteColor,
       appBar: AppBar(
@@ -301,7 +276,7 @@ class _MyProfileNewState extends State<MyProfileNew> {
                           backgroundColor: ClrConstant.whiteColor,
                           backgroundImage: _profileImageUrl != null
                               ? NetworkImage(_profileImageUrl!)
-                              : AssetImage(ImgConstant.fav4)
+                              : AssetImage(ImgConstant.default_user)
                           as ImageProvider,
                         ),
                         FutureBuilder(
@@ -437,17 +412,17 @@ class _MyProfileNewState extends State<MyProfileNew> {
                       SizedBox(width: width*0.03,)
                     ],
                   ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding:  EdgeInsets.only(left: width*0.08),
-                        child: RatingStars(
-                          valueLabelVisibility: false,
-                          value: _avgRating.roundToDouble(),
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     Padding(
+                  //       padding:  EdgeInsets.only(left: width*0.08),
+                  //       child: RatingStars(
+                  //         valueLabelVisibility: false,
+                  //         value: _avgRating,
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                   SizedBox()
                 ],
               ),

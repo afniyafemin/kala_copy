@@ -473,48 +473,49 @@ class _ProfileState extends State<Profile> {
                                 ),
                               ],
                             ),
-                            Container(
-                              height: height*0.05,
-                              // width: width*0.75,
-                              child: Text('''${widget.user.description!}''',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                  fontSize: width*0.0275
+                            Row(
+                              children: [
+                                Container(
+                                  height: height*0.05,
+                                  // width: width*0.75,
+                                  child: Text('''${widget.user.description!}''',
+                                    textAlign: TextAlign.start,
+                                    style: TextStyle(
+                                      fontSize: width*0.0275
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                            Padding(
-                              padding:  EdgeInsets.all(height*0.02),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  GestureDetector(
-                                    onTap: toggleFollow,
-                                    child: Container(
-                                      height: height * 0.05,
-                                      width: width * 0.3,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(width * 0.03),
-                                        border: Border.all(),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          isFollow ? "Following" : "Follow",
-                                          style: TextStyle(
-                                            fontSize: width * 0.03,
-                                            fontWeight: FontWeight.w700,
-                                          ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  onTap: toggleFollow,
+                                  child: Container(
+                                    height: height * 0.05,
+                                    width: width * 0.3,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(width * 0.03),
+                                      border: Border.all(),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        isFollow ? "Following" : "Follow",
+                                        style: TextStyle(
+                                          fontSize: width * 0.03,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  GestureDetector(
-                                    onTap: (){
-                                      Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatPage(otherUserId: widget.user.uid, otherUsername:  widget.user.username ?? 'Unknown User')));
-                                    },
-                                      child: Icon(Icons.message))
-                                ],
-                              ),
+                                ),
+                                GestureDetector(
+                                  onTap: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> ChatPage(otherUserId: widget.user.uid, otherUsername:  widget.user.username ?? 'Unknown User')));
+                                  },
+                                    child: Icon(Icons.message))
+                              ],
                             )
                           ],
                         ),

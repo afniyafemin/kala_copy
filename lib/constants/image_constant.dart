@@ -15,7 +15,7 @@ class ImgConstant{
   static const fav4="assets/images/fav4.jpg";
   static const home="assets/images/home.jpg";
   static const instrumental_music="assets/images/instrumental_music.png";
-  static const malabar="assets/images/malabar.png";
+  static const stry_telling="assets/images/malabar.png";
   static const martial="assets/images/martial.png";
   static const search_dance1="assets/images/search_dance1.jpg";
   static const search_dance2="assets/images/search_dance2.jpg";
@@ -24,4 +24,6 @@ class ImgConstant{
   static const western="assets/images/western.png";
   static const star="assets/images/star.jpg";
   static const google="assets/images/google_logo.png";
+  static const ritual="assets/images/ritual.jpg";
+  static const default_user="assets/images/default_user.jpg";
 }

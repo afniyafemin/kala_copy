@@ -525,7 +525,7 @@ class _CalendarviewAState extends State<CalendarView> {
                                     height: height * 0.05,
                                   ),
 
-                                  event['userId'] == FirebaseAuth.instance.currentUser!.uid ?
+                                  event['userId'] != FirebaseAuth.instance.currentUser!.uid ?
                                   InkWell(
                                     onTap: () async {
                                       print("id : ${event['id']}");

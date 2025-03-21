@@ -33,34 +33,6 @@ class _HomePageState extends State<HomePage> {
     fetchTopArtists(); // Fetch top artists on initialization
   }
 
-  // Future<List<Map<String, dynamic>>> fetchGalleryPosts() async {
-  //   List<Map<String, dynamic>> galleryPosts = [];
-  //   try {
-  //     final querySnapshot =
-  //     await FirebaseFirestore.instance.collection('users').get();
-  //
-  //     for (var doc in querySnapshot.docs) {
-  //       final data = doc.data();
-  //       if (data.containsKey('gallery')) {
-  //         List<dynamic> gallery = data['gallery'];
-  //         for (var post in gallery) {
-  //           galleryPosts.add({
-  //             'username': data['username'],
-  //             'profileImageUrl': data['profileImageUrl'] ?? '',
-  //             'postUrl': post['postUrl'],
-  //             'description': post['description'],
-  //             'likes': post['likes'],
-  //             'comments': post['comments'] ?? [],
-  //             'likedBy': post['likedBy'] ?? [], // Track who liked the post
-  //           });
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching gallery posts: $e');
-  //   }
-  //   return galleryPosts;
-  // }
 
   Future<UserModel> fetchUserById(String userId) async {
     try {
@@ -345,132 +317,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              // FutureBuilder<List<UserModel>>(
-              //   future: fetchAllUsers(),
-              //   builder: (context, snapshot) {
-              //     if (snapshot.connectionState == ConnectionState.waiting) {
-              //       return const Center(child: CircularProgressIndicator());
-              //     } else if (snapshot.hasError) {
-              //       return Center(child: Text("Error: ${snapshot.error}"));
-              //     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              //       return const Center(child: Text("No users found."));
-              //     }
-              //
-              //     List<UserModel> users = snapshot.data!;
-              //     return ListView.separated(
-              //       physics: NeverScrollableScrollPhysics(),
-              //       shrinkWrap: true,
-              //       itemBuilder: (context, index) {
-              //         UserModel user = users[index];
-              //         return Container(
-              //           padding: EdgeInsets.all(width * 0.025),
-              //           height: height * 0.35,
-              //           width: width * 0.85,
-              //           decoration: BoxDecoration(
-              //             borderRadius: BorderRadius.circular(width * 0.03),
-              //             color: ClrConstant.primaryColor.withOpacity(0.20),
-              //           ),
-              //           child: Column(
-              //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //             children: [
-              //               GestureDetector(
-              //                 onTap : (){
-              //                   Navigator.push(context, MaterialPageRoute(builder: (context) => Profile(user: user),));
-              //                 },
-              //                 child: Row(
-              //                   mainAxisAlignment: MainAxisAlignment.start,
-              //                   children: [
-              //                     CircleAvatar(
-              //                       radius: width * 0.04,
-              //                       //backgroundColor: ClrConstant.whiteColor,
-              //                       backgroundImage: user.profileImageUrl != null && user.profileImageUrl!.isNotEmpty
-              //                           ? NetworkImage(user.profileImageUrl!) // Use profile image URL
-              //                           : AssetImage(ImgConstant.fav2) as ImageProvider, // Fallback image
-              //                     ),
-              //                     SizedBox(width: width * 0.03),
-              //                     Text(
-              //                       user.username ?? 'Unknown user',
-              //                       style:
-              //                           TextStyle(fontWeight: FontWeight.w600),
-              //                     ),
-              //                   ],
-              //                 ),
-              //               ),
-              //               Container(
-              //                 height: height * 0.2,
-              //                 width: width * 0.8,
-              //                 decoration: BoxDecoration(
-              //                   borderRadius:
-              //                       BorderRadius.circular(width * 0.03),
-              //                   image: DecorationImage(
-              //                     image: AssetImage(ImgConstant.event1),
-              //                     fit: BoxFit.cover,
-              //                   ),
-              //                 ),
-              //               ),
-              //               Row(
-              //                 mainAxisAlignment:
-              //                     MainAxisAlignment.spaceBetween,
-              //                 children: [
-              //                   Expanded(
-              //                     child: Text(
-              //                       '''${user.username} : The Name that belongs to one of \n The Youngest And Successful DJ's producers..''',
-              //                       style: TextStyle(
-              //                         fontSize: width * 0.03,
-              //                         fontWeight: FontWeight.w600,
-              //                         color: ClrConstant.blackColor
-              //                             .withOpacity(0.25),
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   FutureBuilder<bool>(
-              //                     future: _isUserFavorited(user.uid!),
-              //                     builder: (context, snapshot) {
-              //                       if (snapshot.connectionState ==
-              //                           ConnectionState.waiting) {
-              //                         return CircularProgressIndicator();
-              //                       }
-              //                       bool isFavorited = snapshot.data ?? false;
-              //                       return IconButton(
-              //                         icon: Icon(
-              //                           isFavorited
-              //                               ? Icons.favorite
-              //                               : Icons.favorite_border,
-              //                           color: isFavorited
-              //                               ? Colors.red
-              //                               : ClrConstant.primaryColor,
-              //                         ),
-              //                         onPressed: () {
-              //                           _toggleFavorite(user);
-              //                         },
-              //                       );
-              //                     },
-              //                   ),
-              //                 ],
-              //               ),
-              //             ],
-              //           ),
-              //         );
-              //       },
-              //       separatorBuilder: (context, index) {
-              //         return SizedBox(height: height * 0.01);
-              //       },
-              //       itemCount: users.length,
-              //     );
-              //   },
-              // ),
 
-              // Padding(
-              //   padding: EdgeInsets.symmetric(vertical: width * 0.03),
-              //   child: Text(
-              //     "Gallery Posts",
-              //     style: TextStyle(
-              //       fontWeight: FontWeight.w600,
-              //       color: Colors.black.withOpacity(0.5),
-              //       fontSize: width * 0.05,
-              //     ),
-              //   ),
-              // ),
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: fetchGalleryPosts(),
                 builder: (context, snapshot) {
@@ -498,37 +345,6 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     Navigator.push(
-                            //         context,
-                            //         MaterialPageRoute(
-                            //           builder: (context) => Profile(user: post['username']),
-                            //         ));
-                            //   },
-                            //   child: Row(
-                            //     children: [
-                            //       CircleAvatar(
-                            //         radius: width * 0.05,
-                            //         backgroundImage: post['profileImageUrl']
-                            //                 .isNotEmpty
-                            //             ? NetworkImage(post['profileImageUrl'])
-                            //             : AssetImage(
-                            //                     'assets/default_profile.png')
-                            //                 as ImageProvider,
-                            //       ),
-                            //       SizedBox(width: width * 0.03),
-                            //       Text(
-                            //         post['username'] ?? 'Unknown User',
-                            //         style: TextStyle(
-                            //           fontWeight: FontWeight.w600,
-                            //           fontSize: width * 0.04,
-                            //         ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-
                             GestureDetector(
                               onTap: () async {
                                 // Fetch the user data based on userId

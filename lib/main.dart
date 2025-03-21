@@ -3,6 +3,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kala_copy/constants/image_constant.dart';
+import 'package:kala_copy/screens/slot_booking.dart';
 import 'package:kala_copy/splash/splash.dart';
 
 import 'firebase_options.dart';
