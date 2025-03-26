@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
   Future<List<Map<String, dynamic>>> fetchGalleryPosts() async {
     List<Map<String, dynamic>> galleryPosts = [];
     try {
-      final querySnapshot = await FirebaseFirestore.instance.collection('users').get();
+      final querySnapshot = await FirebaseFirestore.instance.collection('users').where(FieldPath.documentId, isNotEqualTo: currentUserId).get();
 
       for (var doc in querySnapshot.docs) {
         final data = doc.data();
@@ -83,7 +83,7 @@ class _HomePageState extends State<HomePage> {
       final querySnapshot = await FirebaseFirestore.instance
           .collection('users')
           .where('avgRating',
-              isGreaterThan: 2) // Filter users with avgRating > 2
+              isGreaterThan: 2)// Filter users with avgRating > 2
           .orderBy('avgRating', descending: true) // Sort in descending order
           .get();
 
