@@ -190,7 +190,7 @@ class _MyProfileNewState extends State<MyProfileNew> {
                                               setState(() {
 
                                               });
-                                              signOut();
+                                              signOut(context);
                                               Navigator.pop(context);
                                               Navigator.pop(context);
                                             },

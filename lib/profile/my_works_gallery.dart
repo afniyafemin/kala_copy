@@ -146,20 +146,37 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                   child: Container(
                     height: height*0.05,
                     width: width*0.9,
-                    child: Text(
-                      '''description :${item["description"]}'''?? "No description",
-                      style: TextStyle(
-                          fontSize: width*0.03,
-                          fontWeight: FontWeight.w500
-                      ),
+                    child: Row(
+                      children: [
+                        Text("description :",
+                          style: TextStyle(
+                              color: ClrConstant.blackColor.withOpacity(0.35),
+                              fontWeight: FontWeight.w600
+                          ),
+                        ),
+                        Text(
+                          '''${item["description"]}'''?? "No description",
+                          style: TextStyle(
+                              fontSize: width*0.03,
+                              fontWeight: FontWeight.w500
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
 
-                Text("Comments",
-                  style: TextStyle(
-                    color: ClrConstant.blackColor.withOpacity(0.65),
-                    fontWeight: FontWeight.w800
+                Padding(
+                  padding:  EdgeInsets.only(left:width*0.03),
+                  child: Row(
+                    children: [
+                      Text("Comments",
+                        style: TextStyle(
+                          color: ClrConstant.blackColor.withOpacity(0.35),
+                          fontWeight: FontWeight.w600
+                        ),
+                      ),
+                    ],
                   ),
                 ),
 
@@ -170,7 +187,7 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                   itemCount: (item["comments"] as List<dynamic>).length,
                   itemBuilder: (context, index) {
                     return  Padding(
-                      padding: EdgeInsets.all(width*0.01),
+                      padding: EdgeInsets.only(left:width*0.03),
                       child: Text(item["comments"][index]
                       ),
                     );
@@ -180,36 +197,48 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
 
                 // Likes and Edit Button
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     // Like Button
 
                     Text("${item["likes"]} Likes"),
 
+                    SizedBox(width: width*0.125,),
                     // Edit Button
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: ClrConstant.primaryColor),
-                      onPressed: () {
-                        Navigator.pop(context); // Close dialog
-                        _showEditDialog(item); // Open Edit Dialog
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("edit",
+                          style: TextStyle(
+                            color: ClrConstant.blackColor.withOpacity(0.5)
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: ClrConstant.primaryColor),
+                          onPressed: () {
+                            Navigator.pop(context); // Close dialog
+                            _showEditDialog(item); // Open Edit Dialog
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
 
                 // Close Button
-                ElevatedButton(style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(width*0.02)
-                  ),
-                  backgroundColor: ClrConstant.primaryColor,
-                  foregroundColor: ClrConstant.blackColor
-                ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text("Close"),
-                ),
+                // ElevatedButton(style: ElevatedButton.styleFrom(
+                //   shape: RoundedRectangleBorder(
+                //     borderRadius: BorderRadius.circular(width*0.02)
+                //   ),
+                //   backgroundColor: ClrConstant.primaryColor,
+                //   foregroundColor: ClrConstant.blackColor
+                // ),
+                //   onPressed: () {
+                //     Navigator.pop(context);
+                //   },
+                //   child: const Text("Close"),
+                // ),
+
               ],
             ),
           ),
@@ -227,12 +256,21 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Edit Work"),
+          title:  Text("Edit Work",
+            style: TextStyle(
+              color: ClrConstant.blackColor,
+              fontSize: width*0.04,
+              fontWeight: FontWeight.w700
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Update Image
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: ClrConstant.primaryColor,
+                ),
                 onPressed: () async {
                   final picker = ImagePicker();
                   final pickedFile =
@@ -245,7 +283,11 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                     });
                   }
                 },
-                child: const Text("Change Image"),
+                child: const Text("Change Image",
+                  style: TextStyle(
+                    color: ClrConstant.whiteColor
+                  ),
+                ),
               ),
 
               // Edit Description
@@ -262,14 +304,16 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
               // Delete Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.red.shade500,
                 ),
                 onPressed: () async {
                   await _deleteWork(item);
                   Navigator.pop(context); // Close the edit dialog
                   setState(() {}); // Refresh gallery
                 },
-                child: const Text("Delete Work"),
+                child: const Text("Delete Work",
+                  style: TextStyle(color: ClrConstant.whiteColor),
+                ),
               ),
             ],
           ),
@@ -288,7 +332,9 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
                 Navigator.pop(context); // Close the dialog
                 setState(() {}); // Refresh gallery
               },
-              child: const Text("Save"),
+              child: const Text("Save",
+                style: TextStyle(color: ClrConstant.primaryColor),
+              ),
             ),
 
             // Cancel
@@ -296,7 +342,9 @@ class _MyWorksGalleryState extends State<MyWorksGallery> {
               onPressed: () {
                 Navigator.pop(context); // Close the dialog
               },
-              child: const Text("Cancel"),
+              child:  Text("Cancel",
+                style: TextStyle(color: Colors.red.shade300),
+              ),
             ),
           ],
         );

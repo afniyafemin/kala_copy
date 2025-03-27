@@ -167,19 +167,28 @@ class _LoginState extends State<Login> {
                             ),
                           ),
                           SizedBox(height: height*0.03,),
-                          GestureDetector(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [Text("forgot password")],
-                            ),
-                          ),
+                          // GestureDetector(
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.end,
+                          //     children: [Text("forgot password")],
+                          //   ),
+                          // ),
                           SizedBox(height: height*0.03,),
                           GestureDetector(
-                            onTap: (){
-                              setState(() {
-                                signIn(emailController.text, passwordController.text);
-                              });
+
+                            // onTap: (){
+                            //   setState(() {
+                            //     signIn(emailController.text, passwordController.text);
+                            //   });
+                            // },
+
+                            onTap: () async {
+                              User? user = await signIn(emailController.text, passwordController.text, context);
+                              if (user != null) {
+                                setState(() {}); // Force rebuild (might not be necessary)
+                              }
                             },
+
                             child: Container(
                               height: height * 0.04,
                               width: width * 0.4,

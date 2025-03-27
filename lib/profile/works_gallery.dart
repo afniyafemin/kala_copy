@@ -20,13 +20,14 @@ class _WorksGalleryState extends State<WorksGallery> {
 
       if (userDoc.exists && userDoc.data() != null) {
         var gallery = List<Map<String, dynamic>>.from(userDoc.data()?['gallery'] ?? []);
+
         return gallery
             .map((postData) => Post(
           img: postData['postUrl'] ?? '',
           description: postData['description'] ?? '',
           likes: postData['likes'] ?? 0,
           comments: List<dynamic>.from(postData['comments'] ?? []),
-          isLiked: postData['isLiked'] ?? false,
+          likedBy: List<String>.from(postData['likedBy'] ?? []),
         ))
             .toList();
       }
@@ -125,9 +126,17 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   Future<void> toggleLike() async {
+    String currentUserId = widget.userId; // Current logged-in user
+    bool currentlyLiked = widget.post.isLiked(currentUserId);
+
     setState(() {
-      widget.post.isLiked = !widget.post.isLiked;
-      widget.post.likes += widget.post.isLiked ? 1 : -1;
+      if (currentlyLiked) {
+        widget.post.likedBy.remove(currentUserId);
+        widget.post.likes -= 1;
+      } else {
+        widget.post.likedBy.add(currentUserId);
+        widget.post.likes += 1;
+      }
     });
 
     try {
@@ -142,7 +151,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
 
         if (index != -1) {
           gallery[index]['likes'] = widget.post.likes;
-          gallery[index]['isLiked'] = widget.post.isLiked;
+          gallery[index]['likedBy'] = widget.post.likedBy; // Update likedBy list
           await FirebaseFirestore.instance
               .collection('users')
               .doc(widget.userId)
@@ -223,8 +232,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               children: [
                 IconButton(
                   icon: Icon(
-                    widget.post.isLiked ? Icons.favorite : Icons.favorite_border,
-                    color: widget.post.isLiked ? Colors.red : Colors.grey,
+                    widget.post.isLiked(widget.userId) ? Icons.favorite : Icons.favorite_border,
+                    color: widget.post.isLiked(widget.userId) ? Colors.red : Colors.grey,
                   ),
                   onPressed: toggleLike,
                 ),
@@ -311,13 +320,18 @@ class Post {
   final String description;
   int likes;
   final List<dynamic> comments;
-  bool isLiked;
+  List<String> likedBy; // Store user IDs who liked the post
 
   Post({
     required this.img,
     required this.description,
     required this.likes,
     this.comments = const [],
-    this.isLiked = false,
+    this.likedBy = const [],
   });
+
+  bool isLiked(String userId) {
+    return likedBy.contains(userId);
+  }
 }
+

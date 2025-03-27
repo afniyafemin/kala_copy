@@ -85,7 +85,9 @@ class _CategoryDetailsState extends State<CategoryDetails> {
                     );
                   },
                   leading: CircleAvatar(
-                    backgroundImage: AssetImage(ImgConstant.dance_category1), // Replace with actual user image if available
+                    backgroundImage: users[index].profileImageUrl != null && users[index].profileImageUrl!.isNotEmpty
+                        ? NetworkImage(users[index].profileImageUrl!) as ImageProvider
+                        : AssetImage(ImgConstant.default_user),
                   ),
                   title: Text(users[index].username ?? "Unknown User"), // Access username from UserModel
                 );

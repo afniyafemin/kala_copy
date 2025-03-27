@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:kala_copy/constants/image_constant.dart';
 import 'package:kala_copy/screens/slot_booking.dart';
 import 'package:kala_copy/splash/splash.dart';
-
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'firebase_options.dart';
 
 
@@ -17,6 +17,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
+  );
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
   );
   runApp(MyApp());
 }

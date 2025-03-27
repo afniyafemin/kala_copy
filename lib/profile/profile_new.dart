@@ -474,6 +474,17 @@ class _ProfileState extends State<Profile> {
                               ],
                             ),
                             Row(
+                              children:[
+                              Text(widget.user.category!,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    color: ClrConstant.blackColor.withOpacity(0.5)
+                                ),
+                              ),
+                              ]
+                            ),
+
+                            Row(
                               children: [
                                 Container(
                                   height: height*0.05,

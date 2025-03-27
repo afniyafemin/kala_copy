@@ -102,6 +102,8 @@ class _MyEventsListState extends State<MyEventsList> {
                                   location: event['location'],
                                   date: event['date'],
                                   description: event['description'],
+                                  imgUrl: event['imageUrl'],
+
                                 ),
                               ));
                         },
@@ -122,7 +124,7 @@ class _MyEventsListState extends State<MyEventsList> {
                                     width: width * 0.25,
                                     decoration: BoxDecoration(
                                       image: DecorationImage(
-                                        image: AssetImage(ImgConstant.event1),
+                                        image: NetworkImage(event["imageUrl"]),
                                         fit: BoxFit.cover,
                                       ),
                                       borderRadius: BorderRadius.only(

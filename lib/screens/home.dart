@@ -71,6 +71,7 @@ class _HomePageState extends State<HomePage> {
           }
         }
       }
+      galleryPosts.sort((a, b) => (b['likes'] as int).compareTo(a['likes'] as int));
     } catch (e) {
       print('Error fetching gallery posts: $e');
     }

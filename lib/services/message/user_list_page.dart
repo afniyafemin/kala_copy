@@ -98,7 +98,7 @@ class _MessagePageState extends State<MessagePage> {
                   leading: CircleAvatar(
                     backgroundImage: user['profileImageUrl'] != null && user['profileImageUrl'].isNotEmpty
                         ? NetworkImage(user['profileImageUrl'])
-                        : AssetImage(ImgConstant.event1) as ImageProvider,
+                        : AssetImage(ImgConstant.default_user) as ImageProvider,
                   ),
 
                   title: Text(user['username'] ?? 'Unknown User'),

@@ -11,6 +11,7 @@ class InviteArtist extends StatefulWidget {
   final String location;
   final String date;
   final String description;
+  final String imgUrl;
 
   const InviteArtist({
     Key? key,
@@ -19,6 +20,7 @@ class InviteArtist extends StatefulWidget {
     required this.location,
     required this.date,
     required this.description,
+    required this.imgUrl
   }) : super(key: key);
 
   @override
@@ -30,6 +32,7 @@ class _InviteArtistState extends State<InviteArtist> {
   String description = '';
   String location = '';
   String date = '';
+  String imgUrl='';
 
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -74,6 +77,7 @@ class _InviteArtistState extends State<InviteArtist> {
         'numberOfPeople': int.parse(numberOfPeopleController.text),
         'date': DateTime.now().toIso8601String(),
         'user' : FirebaseAuth.instance.currentUser?.uid,
+        'imageUrl' : widget.imgUrl
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking Confirmed!')),
@@ -183,11 +187,11 @@ class _InviteArtistState extends State<InviteArtist> {
                   Stack(
                     children: [
                       Container(
-                        height: height * 0.3,
+                        height: height * 0.4,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(width * 0.03),
                           image: DecorationImage(
-                            image: AssetImage(ImgConstant.event1),
+                            image: NetworkImage(widget.imgUrl),
                             fit: BoxFit.fill,
                           ),
                         ),

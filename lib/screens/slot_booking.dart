@@ -132,7 +132,7 @@ class _SlotBookingState extends State<SlotBooking> {
                   Stack(
                     children: [
                       Container(
-                        height: height * 0.3,
+                        height: height * 0.4,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(width * 0.03),
                           image: DecorationImage(
